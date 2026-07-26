@@ -9,7 +9,7 @@ function Register() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -33,7 +33,6 @@ function Register() {
       {
         name,
         email,
-        phone,
         password,
       }
     );
@@ -91,17 +90,7 @@ function Register() {
 
 
 
-          <label>Phone Number</label>
-
-          <input
-            type="tel"
-            placeholder="Enter phone number"
-            value={phone}
-            onChange={(e)=>setPhone(e.target.value)}
-          />
-
-
-
+         
           <label>Password</label>
 
           <input
