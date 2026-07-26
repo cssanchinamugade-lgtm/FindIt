@@ -18,7 +18,7 @@ function Search() {
   const fetchLostItems = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/lost-items"
+        "http://https://findit-backend-lees.onrender.com/api/lost-items"
       );
 
       const data = response.data.map((item) => ({
@@ -35,7 +35,7 @@ function Search() {
   const fetchFoundItems = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/found-items"
+        "http://https://findit-backend-lees.onrender.com/api/found-items"
       );
 
       const data = response.data.map((item) => ({
@@ -81,7 +81,7 @@ function Search() {
 
               {item.image ? (
                 <img
-                  src={`http://localhost:5000/uploads/${item.image}`}
+                  src={`http://https://findit-backend-lees.onrender.com/uploads/${item.image}`}
                   alt={item.itemName}
                   className="item-image"
                 />

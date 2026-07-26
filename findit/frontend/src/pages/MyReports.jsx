@@ -13,7 +13,7 @@ function MyReports() {
   const fetchReports = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/lost-items/my-reports",
+        "http://https://findit-backend-lees.onrender.com/api/lost-items/my-reports",
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -37,7 +37,7 @@ function MyReports() {
 
     try {
       await axios.delete(
-        `http://localhost:5000/api/lost-items/${id}`,
+        `http://https://findit-backend-lees.onrender.com/api/lost-items/${id}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -68,7 +68,7 @@ function MyReports() {
             <div className="report-card" key={item._id}>
               {item.image ? (
                 <img
-                  src={`http://localhost:5000/uploads/${item.image}`}
+                  src={`http://https://findit-backend-lees.onrender.com/uploads/${item.image}`}
                   alt={item.itemName}
                   className="report-image"
                 />

@@ -21,7 +21,7 @@ function EditReport() {
   const fetchReport = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/lost-items"
+        "http://https://findit-backend-lees.onrender.com/api/lost-items"
       );
 
       const report = response.data.find((item) => item._id === id);
@@ -44,7 +44,7 @@ function EditReport() {
 
     try {
       await axios.put(
-        `http://localhost:5000/api/lost-items/${id}`,
+        `http://https://findit-backend-lees.onrender.com/api/lost-items/${id}`,
         {
           itemName,
           category,
