@@ -106,6 +106,24 @@ function Navbar(){
                     </Link>
                     </li>
 
+                    {
+user &&
+
+<li>
+
+<Link
+className="nav-link text-white"
+to="/my-reports"
+>
+
+My Reports
+
+</Link>
+
+</li>
+
+}
+
 
 
 

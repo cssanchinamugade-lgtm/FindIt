@@ -1,55 +1,372 @@
+/* ===========================
+   My Reports Page
+=========================== */
+
+
 .myreports-page {
-  width: 90%;
-  max-width: 1200px;
-  margin: 40px auto;
+
+    width: 90%;
+    max-width: 1200px;
+
+    margin: 50px auto;
+
+    padding: 20px;
+
+    min-height: 85vh;
+
+    background: #f4f7fb;
+
 }
+
+
+
+
+
+/* ===========================
+   Heading
+=========================== */
+
 
 .myreports-page h1 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #0d6efd;
+
+    text-align: center;
+
+    font-size: 42px;
+
+    font-weight: 800;
+
+    margin-bottom: 40px;
+
+    color: #0d6efd;
+
 }
+
+
+
+
+
+/* ===========================
+   Reports Grid
+=========================== */
+
 
 .reports-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 25px;
+
+    display: grid;
+
+    grid-template-columns:
+    repeat(auto-fit, minmax(320px, 1fr));
+
+    gap: 30px;
+
 }
+
+
+
+
+
+/* ===========================
+   Report Card
+=========================== */
+
 
 .report-card {
-  background: white;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0,0,0,.1);
+
+    background: white;
+
+    border-radius: 25px;
+
+    overflow: hidden;
+
+    box-shadow:
+    0 15px 35px rgba(0,0,0,0.10);
+
+    transition: 0.3s ease;
+
 }
+
+
+
+.report-card:hover {
+
+    transform: translateY(-10px);
+
+    box-shadow:
+    0 25px 45px rgba(0,0,0,0.15);
+
+}
+
+
+
+
+
+/* ===========================
+   Image
+=========================== */
+
 
 .report-image {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
+
+    width: 100%;
+
+    height: 230px;
+
+    object-fit: cover;
+
 }
 
-.report-card h2 {
-  color: #0d6efd;
-  padding: 15px 20px;
+
+
+
+
+/* ===========================
+   Report Content
+=========================== */
+
+
+.report-content {
+
+    padding: 25px;
+
 }
 
-.report-card p {
-  padding: 0 20px;
+
+
+
+
+.report-content h2 {
+
+    color: #0d6efd;
+
+    font-size: 26px;
+
+    font-weight: 700;
+
+    margin-bottom: 15px;
+
 }
 
-.delete-btn {
-  width: calc(100% - 40px);
-  margin: 20px;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  background: #dc3545;
-  color: white;
-  cursor: pointer;
-  font-weight: bold;
+
+
+
+
+.report-content p {
+
+    color: #555;
+
+    font-size: 16px;
+
+    line-height: 1.6;
+
+    margin: 10px 0;
+
 }
 
-.delete-btn:hover {
-  background: #bb2d3b;
+
+
+
+
+.report-content strong {
+
+    color: #222;
+
+}
+
+
+
+
+
+/* ===========================
+   Buttons Container
+=========================== */
+
+
+.report-buttons {
+
+    display: flex;
+
+    gap: 15px;
+
+    margin-top: 25px;
+
+}
+
+
+
+
+
+/* ===========================
+   Buttons
+=========================== */
+
+
+.report-buttons .btn {
+
+    flex: 1;
+
+    padding: 12px;
+
+    border-radius: 30px;
+
+    border: none;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    text-align: center;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+}
+
+
+
+
+
+/* Edit Button */
+
+.report-buttons .btn-primary {
+
+    background: linear-gradient(
+        45deg,
+        #0d6efd,
+        #6610f2
+    );
+
+    color: white;
+
+}
+
+
+
+.report-buttons .btn-primary:hover {
+
+    transform: scale(1.05);
+
+    box-shadow:
+    0 8px 20px rgba(13,110,253,0.3);
+
+}
+
+
+
+
+
+/* Delete Button */
+
+.report-buttons .btn-danger {
+
+    background: linear-gradient(
+        45deg,
+        #ff416c,
+        #dc3545
+    );
+
+    color: white;
+
+}
+
+
+
+.report-buttons .btn-danger:hover {
+
+    transform: scale(1.05);
+
+    box-shadow:
+    0 8px 20px rgba(220,53,69,0.3);
+
+}
+
+
+
+
+
+/* ===========================
+   Empty Reports
+=========================== */
+
+
+.text-center {
+
+    text-align: center;
+
+    color: #777;
+
+    margin-top: 60px;
+
+}
+
+
+
+
+
+/* ===========================
+   Responsive
+=========================== */
+
+
+@media(max-width:768px){
+
+
+    .myreports-page {
+
+        width: 95%;
+
+        padding: 10px;
+
+    }
+
+
+
+    .myreports-page h1 {
+
+        font-size: 32px;
+
+    }
+
+
+
+    .report-buttons {
+
+        flex-direction: column;
+
+    }
+
+
+
+}
+
+
+
+@media(max-width:480px){
+
+
+    .myreports-page h1 {
+
+        font-size: 26px;
+
+    }
+
+
+
+    .report-image {
+
+        height: 200px;
+
+    }
+
+
+
+    .report-content {
+
+        padding: 18px;
+
+    }
+
+
 }
