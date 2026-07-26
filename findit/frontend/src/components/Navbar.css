@@ -1,9 +1,18 @@
+/* ===========================
+   Navbar
+=========================== */
+
 .navbar{
 
     padding:15px 0;
 
 }
 
+
+
+/* ===========================
+   Logo
+=========================== */
 
 
 .logo{
@@ -36,6 +45,13 @@
 
 
 
+
+
+/* ===========================
+   Links
+=========================== */
+
+
 .nav-link{
 
     color:white !important;
@@ -58,14 +74,9 @@
 
 
 
-.profile-btn{
-
-    font-weight:600;
-
-}
-
-
-
+/* ===========================
+   Buttons
+=========================== */
 
 
 .btn{
@@ -80,33 +91,12 @@
 
 
 
-@media(max-width:768px){
+/* ===========================
+   Profile Dropdown
+=========================== */
 
 
-    .navbar-nav{
-
-        margin-top:20px;
-
-        text-align:center;
-
-    }
-
-
-    .logo{
-
-        font-size:26px;
-
-    }
-
-
-    .logo-icon{
-
-        font-size:32px;
-
-    }
-
-
-    .profile-dropdown{
+.profile-dropdown{
 
     position:relative;
 
@@ -114,44 +104,58 @@
 
 
 
+
+
 .profile-btn{
 
-    background:none;
+    background:transparent;
 
     border:none;
 
     color:white;
 
-    font-weight:bold;
+    font-size:16px;
+
+    font-weight:600;
 
     cursor:pointer;
 
+    padding:8px 12px;
+
 }
+
+
 
 
 
 .dropdown-menu{
 
-    display:none;
-
     position:absolute;
+
+    top:45px;
 
     right:0;
 
-    top:40px;
+    width:200px;
 
     background:white;
 
-    width:180px;
-
     border-radius:15px;
 
-    box-shadow:
-    0 10px 25px rgba(0,0,0,0.15);
+    padding:10px 0;
 
-    overflow:hidden;
+    box-shadow:
+
+    0 10px 30px rgba(0,0,0,0.15);
+
+
+    display:none;
+
+    z-index:9999;
 
 }
+
+
 
 
 
@@ -163,34 +167,111 @@
 
 
 
+
+
 .dropdown-menu a,
 .dropdown-menu button{
+
 
     display:block;
 
     width:100%;
 
-    padding:12px 15px;
+    padding:12px 20px;
 
-    text-decoration:none;
-
-    color:#333;
 
     background:white;
 
     border:none;
 
+
+    color:#333;
+
+
+    text-decoration:none;
+
+
     text-align:left;
 
+
+    font-size:15px;
+
+
+    cursor:pointer;
+
+
 }
+
+
 
 
 
 .dropdown-menu a:hover,
 .dropdown-menu button:hover{
 
+
     background:#f1f5ff;
 
+    color:#0d6efd;
+
+
 }
+
+
+
+
+
+/* ===========================
+   Mobile Responsive
+=========================== */
+
+
+@media(max-width:768px){
+
+
+    .navbar-nav{
+
+
+        margin-top:20px;
+
+        text-align:center;
+
+
+    }
+
+
+
+    .logo{
+
+
+        font-size:26px;
+
+
+    }
+
+
+
+    .logo-icon{
+
+
+        font-size:32px;
+
+
+    }
+
+
+
+    .dropdown-menu{
+
+
+        right:auto;
+
+        left:50%;
+
+        transform:translateX(-50%);
+
+
+    }
+
 
 }
