@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -6,6 +7,7 @@ import "./ItemDetails.css";
 
 function ItemDetails(){
 
+    const navigate = useNavigate();
     const {id}=useParams();
 
     const [item,setItem]=useState(null);
@@ -117,12 +119,14 @@ function ItemDetails(){
 
 
 
-                <button className="chat-btn">
-
-                    Chat With User 💬
-
-                </button>
-
+               <button
+className="chat-btn"
+onClick={() =>
+navigate(`/chat/${item._id}/${item.userId}`)
+}
+>
+    Chat With User 💬
+</button>
 
 
             </div>
