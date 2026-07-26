@@ -14,21 +14,58 @@ function Navbar(){
 
     useEffect(()=>{
 
-        const loggedUser =
-        JSON.parse(localStorage.getItem("user"));
+
+        const checkUser = ()=>{
 
 
-        setUser(loggedUser);
+            const loggedUser =
+            JSON.parse(
+                localStorage.getItem("user")
+            );
+
+
+            setUser(loggedUser);
+
+
+        };
+
+
+
+        checkUser();
+
+
+
+        window.addEventListener(
+            "storage",
+            checkUser
+        );
+
+
+
+        return()=>{
+
+            window.removeEventListener(
+                "storage",
+                checkUser
+            );
+
+        };
 
 
     },[]);
 
 
 
-    const logout = ()=>{
+
+
+
+
+    const logout=()=>{
 
 
         localStorage.removeItem("user");
+
+        localStorage.removeItem("token");
 
 
         setUser(null);
@@ -42,179 +79,142 @@ function Navbar(){
 
 
 
-    return(
-
-        <nav className="navbar navbar-expand-lg bg-primary">
-
-
-            <div className="container">
-
-
-                <Link
-                className="navbar-brand text-white fw-bold fs-2"
-                to="/"
-                >
-                    🔍 FindIt
-                </Link>
 
 
 
+return(
 
+<nav className="navbar navbar-expand-lg bg-primary">
 
-                <ul className="navbar-nav ms-auto d-flex flex-row gap-4 align-items-center">
-
-
-                    <li>
-                    <Link
-                    className="nav-link text-white"
-                    to="/"
-                    >
-                        Home
-                    </Link>
-                    </li>
+<div className="container">
 
 
 
-                    <li>
-                    <Link
-                    className="nav-link text-white"
-                    to="/search"
-                    >
-                        Search
-                    </Link>
-                    </li>
+<Link
+className="navbar-brand text-white fw-bold fs-2"
+to="/"
+>
+🔍 FindIt
+</Link>
 
 
 
-                    <li>
-                    <Link
-                    className="nav-link text-white"
-                    to="/report-lost"
-                    >
-                        Report Lost
-                    </Link>
-                    </li>
+
+
+<ul className="navbar-nav ms-auto d-flex flex-row gap-4 align-items-center">
 
 
 
-                    <li>
-                    <Link
-                    className="nav-link text-white"
-                    to="/report-found"
-                    >
-                        Report Found
-                    </Link>
-                    </li>
+<li>
+<Link className="nav-link text-white" to="/">
+Home
+</Link>
+</li>
 
-                    {
-user &&
+
+
+<li>
+<Link className="nav-link text-white" to="/search">
+Search
+</Link>
+</li>
+
+
+
+<li>
+<Link className="nav-link text-white" to="/report-lost">
+Report Lost
+</Link>
+</li>
+
+
+
+<li>
+<Link className="nav-link text-white" to="/report-found">
+Report Found
+</Link>
+</li>
+
+
+
+
+
+{
+user ?
+
+<>
+
+<li>
+
+<span className="text-white fw-bold">
+
+👤 {user.name}
+
+</span>
+
+</li>
+
+
+<li>
+
+<button
+className="btn btn-danger"
+onClick={logout}
+>
+
+Logout
+
+</button>
+
+</li>
+
+</>
+
+
+:
+
+
+<>
 
 <li>
 
 <Link
-className="nav-link text-white"
-to="/my-reports"
+className="btn btn-light"
+to="/login"
 >
-
-My Reports
-
+Login
 </Link>
 
 </li>
+
+
+<li>
+
+<Link
+className="btn btn-warning"
+to="/register"
+>
+Register
+</Link>
+
+</li>
+
+</>
 
 }
 
 
 
-
-
-                    {
-                        user ?
-
-                        <>
-
-
-                        <li>
-
-                        <span className="text-white fw-bold">
-
-                            👤 {user.name}
-
-                        </span>
-
-                        </li>
+</ul>
 
 
 
-                        <li>
+</div>
 
-                        <button
-                        className="btn btn-danger"
-                        onClick={logout}
-                        >
+</nav>
 
-                            Logout
+);
 
-                        </button>
-
-                        </li>
-
-
-                        </>
-
-
-                        :
-
-
-                        <>
-
-
-                        <li>
-
-                        <Link
-                        className="btn btn-light"
-                        to="/login"
-                        >
-
-                            Login
-
-                        </Link>
-
-                        </li>
-
-
-
-
-                        <li>
-
-                        <Link
-                        className="btn btn-warning"
-                        to="/register"
-                        >
-
-                            Register
-
-                        </Link>
-
-                        </li>
-
-
-                        </>
-
-
-                    }
-
-
-
-                </ul>
-
-
-            </div>
-
-
-        </nav>
-
-    );
 
 }
 
