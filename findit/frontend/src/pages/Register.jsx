@@ -29,7 +29,7 @@ function Register() {
 
   try {
     const response = await axios.post(
-      "http://https://findit-backend-lees.onrender.com/api/auth/register",
+      "https://findit-backend-lees.onrender.com/api/auth/register",
       {
         name,
         email,
