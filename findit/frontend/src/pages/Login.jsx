@@ -56,37 +56,96 @@ function Login() {
     setLoading(false);
   };
 
-  return (
-    <div className="login-container">
-      <form className="login-card" onSubmit={handleLogin}>
-        <h2>Login to FindIt</h2>
+ return (
+  <div className="login-page">
 
-        {error && <p className="error">{error}</p>}
+    <div className="login-overlay">
 
-        <input
-          type="email"
-          placeholder="Enter Email"
-          value={email}
-          autoComplete="email"
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+      <div className="login-card">
 
-        <input
-          type="password"
-          placeholder="Enter Password"
-          value={password}
-          autoComplete="current-password"
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <div className="login-header">
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+          <div className="login-logo">
+            🔍
+          </div>
+
+          <h1>Welcome Back</h1>
+
+          <p>
+            Sign in to continue using <strong>FindIt</strong>
+          </p>
+
+        </div>
+
+        {error && (
+          <div className="error-box">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin}>
+
+          <div className="input-group">
+
+            <label>Email Address</label>
+
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              autoComplete="email"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+
+          </div>
+
+          <div className="input-group">
+
+            <label>Password</label>
+
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              autoComplete="current-password"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+          </div>
+
+          <button
+            className="login-btn"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Signing In..." : "Login"}
+          </button>
+
+        </form>
+
+        <div className="divider">
+          <span>OR</span>
+        </div>
+
+        <p className="register-text">
+          Don't have an account?
+        </p>
+
+        <button
+          className="register-btn"
+          onClick={() => navigate("/register")}
+        >
+          Create Account
         </button>
-      </form>
+
+      </div>
+
     </div>
-  );
+
+  </div>
+);
 }
 
 export default Login;
