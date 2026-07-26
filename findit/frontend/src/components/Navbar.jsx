@@ -1,141 +1,229 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { FaSearchLocation, FaUserCircle } from "react-icons/fa";
+import { FaSearchLocation } from "react-icons/fa";
 import "./Navbar.css";
 
 function Navbar() {
-  const navigate = useNavigate();
 
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user"))
-  );
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const syncUser = () => {
-      setUser(JSON.parse(localStorage.getItem("user")));
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+
+        const storedUser = localStorage.getItem("user");
+
+        if (storedUser) {
+
+            setUser(
+                JSON.parse(storedUser)
+            );
+
+        }
+
+    }, []);
+
+    const logout = () => {
+
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+
+        setUser(null);
+
+        navigate("/login");
+
     };
 
-    window.addEventListener("storage", syncUser);
+    return (
 
-    syncUser();
+        <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
 
-    return () => {
-      window.removeEventListener("storage", syncUser);
-    };
-  }, []);
+            <div className="container">
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+                {/* LOGO */}
 
-    setUser(null);
+                <Link
+                    className="navbar-brand logo"
+                    to="/"
+                >
 
-    navigate("/", { replace: true });
+                    <FaSearchLocation
+                        className="logo-icon"
+                    />
 
-    window.location.reload();
-  };
+                    <span>
+                        FindIt
+                    </span>
 
-  return (
-    <nav className="navbar navbar-expand-lg navbar-dark">
-      <div className="container">
+                </Link>
 
-        <Link className="navbar-brand logo" to="/">
-          <FaSearchLocation className="logo-icon" />
-          <span>FindIt</span>
-        </Link>
+                {/* Mobile Toggle */}
 
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarMenu"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+                <button
 
-        <div
-          className="collapse navbar-collapse"
-          id="navbarMenu"
-        >
-          <ul className="navbar-nav ms-auto align-items-center gap-3">
+                    className="navbar-toggler"
 
-            <li>
-              <Link className="nav-link" to="/">
-                Home
-              </Link>
-            </li>
+                    type="button"
 
-            <li>
-              <Link className="nav-link" to="/search">
-                Search
-              </Link>
-            </li>
+                    data-bs-toggle="collapse"
 
-            <li>
-              <Link className="nav-link" to="/report-lost">
-                Report Lost
-              </Link>
-            </li>
+                    data-bs-target="#navbarMenu"
 
-            <li>
-              <Link className="nav-link" to="/report-found">
-                Report Found
-              </Link>
-            </li>
+                >
 
-            {user ? (
-              <>
-                <li>
-                  <Link className="nav-link" to="/myreports">
-                    My Reports
-                  </Link>
-                </li>
+                    <span className="navbar-toggler-icon"></span>
 
-                <li className="user-info">
-                  <FaUserCircle className="user-icon" />
+                </button>
 
-                  <span>
-                    {user.name}
-                  </span>
-                </li>
+                <div
+                    className="collapse navbar-collapse"
+                    id="navbarMenu"
+                >
 
-                <li>
-                  <button
-                    className="btn logout-btn"
-                    onClick={logout}
-                  >
-                    Logout
-                  </button>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link
-                    className="btn login-btn"
-                    to="/login"
-                  >
-                    Login
-                  </Link>
-                </li>
+                    <ul className="navbar-nav ms-auto align-items-center gap-3">
 
-                <li>
-                  <Link
-                    className="btn register-btn"
-                    to="/register"
-                  >
-                    Register
-                  </Link>
-                </li>
-              </>
-            )}
+                        <li className="nav-item">
 
-          </ul>
-        </div>
+                            <Link
+                                className="nav-link"
+                                to="/"
+                            >
 
-      </div>
-    </nav>
-  );
+                                Home
+
+                            </Link>
+
+                        </li>
+
+                        <li className="nav-item">
+
+                            <Link
+                                className="nav-link"
+                                to="/search"
+                            >
+
+                                Search
+
+                            </Link>
+
+                        </li>
+
+                        <li className="nav-item">
+
+                            <Link
+                                className="nav-link"
+                                to="/report-lost"
+                            >
+
+                                Report Lost
+
+                            </Link>
+
+                        </li>
+
+                        <li className="nav-item">
+
+                            <Link
+                                className="nav-link"
+                                to="/report-found"
+                            >
+
+                                Report Found
+
+                            </Link>
+
+                        </li>
+
+                        {
+
+                            user ?
+
+                                <>
+
+                                    <li>
+
+                                        <Link
+
+                                            className="btn btn-light profile-btn"
+
+                                            to="/profile"
+
+                                        >
+
+                                            Profile
+
+                                        </Link>
+
+                                    </li>
+
+                                    <li>
+
+                                        <button
+
+                                            className="btn btn-danger"
+
+                                            onClick={logout}
+
+                                        >
+
+                                            Logout
+
+                                        </button>
+
+                                    </li>
+
+                                </>
+
+                                :
+
+                                <>
+
+                                    <li>
+
+                                        <Link
+
+                                            className="btn btn-light"
+
+                                            to="/login"
+
+                                        >
+
+                                            Login
+
+                                        </Link>
+
+                                    </li>
+
+                                    <li>
+
+                                        <Link
+
+                                            className="btn btn-warning"
+
+                                            to="/register"
+
+                                        >
+
+                                            Register
+
+                                        </Link>
+
+                                    </li>
+
+                                </>
+
+                        }
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </nav>
+
+    );
+
 }
 
 export default Navbar;
