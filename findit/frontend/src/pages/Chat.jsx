@@ -1,30 +1,373 @@
+import { useEffect, useState, useRef } from "react";
+import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
+import "./Chat.css";
+
+
+const socket = io(
+    "https://findit-backend-lees.onrender.com"
+);
+
+
 
 function Chat(){
 
-    const {itemId, receiverId} = useParams();
+    const {
+        itemId,
+        receiverId
+    } = useParams();
+
+
+
+    const [message,setMessage] = useState("");
+
+    const [messages,setMessages] = useState([]);
+
+
+    const bottomRef = useRef();
+
+
+
+    const user = JSON.parse(
+        localStorage.getItem("user")
+    );
+
+
+
+    if(!user){
+
+        return(
+
+            <h2 className="login-message">
+                Please login to use chat 💬
+            </h2>
+
+        );
+
+    }
+
+
+
+    const userId = user._id;
+
+    const userName = user.name;
+
+
+
+    const chatId = [
+        userId,
+        receiverId
+    ]
+    .sort()
+    .join("_");
+
+
+
+
+
+    useEffect(()=>{
+
+
+        socket.emit(
+            "joinChat",
+            chatId
+        );
+
+
+
+        socket.on(
+            "receiveMessage",
+            (data)=>{
+
+
+                setMessages(
+                    prev=>[
+                        ...prev,
+                        data
+                    ]
+                );
+
+
+            }
+        );
+
+
+
+        return()=>{
+
+
+            socket.off(
+                "receiveMessage"
+            );
+
+
+        }
+
+
+
+    },[chatId]);
+
+
+
+
+
+    useEffect(()=>{
+
+
+        bottomRef.current?.scrollIntoView({
+
+            behavior:"smooth"
+
+        });
+
+
+    },[messages]);
+
+
+
+
+
+
+
+    const sendMessage = async()=>{
+
+
+        if(!message.trim())
+            return;
+
+
+
+        const data={
+
+
+            chatId,
+
+
+            itemId,
+
+
+            senderId:userId,
+
+
+            receiverId,
+
+
+            senderName:userName,
+
+
+            message,
+
+
+            time:new Date()
+
+
+
+        };
+
+
+
+
+        socket.emit(
+            "sendMessage",
+            data
+        );
+
+
+
+        try{
+
+
+            await fetch(
+
+            "https://findit-backend-lees.onrender.com/api/chat",
+
+            {
+
+                method:"POST",
+
+
+                headers:{
+
+
+                    "Content-Type":
+                    "application/json"
+
+
+                },
+
+
+                body:JSON.stringify(data)
+
+
+            }
+
+            );
+
+
+        }
+
+        catch(error){
+
+
+            console.log(error);
+
+
+        }
+
+
+
+
+
+        setMessage("");
+
+
+
+    };
+
+
+
+
+
 
 
     return(
 
-        <div>
 
-            <h1>
-                Chat Page Opened 💬
-            </h1>
+        <div className="whatsapp-container">
 
 
-            <p>
-                Item ID: {itemId}
-            </p>
+            <div className="chat-header">
 
 
-            <p>
-                Receiver ID: {receiverId}
-            </p>
+                <h2>
+                    Chat With User 💬
+                </h2>
+
+
+                <span>
+                    Online 🟢
+                </span>
+
+
+            </div>
+
+
+
+
+
+            <div className="messages">
+
+
+                {
+                    messages.map(
+                        (msg,index)=>(
+
+
+                        <div
+
+                        key={index}
+
+                        className={
+                            msg.senderId===userId
+                            ?
+                            "my-message"
+                            :
+                            "other-message"
+                        }
+
+
+                        >
+
+                            <p>
+                                {msg.message}
+                            </p>
+
+
+                            <small>
+
+                            {
+                                new Date(
+                                    msg.time
+                                )
+                                .toLocaleTimeString()
+                            }
+
+                            </small>
+
+
+
+                        </div>
+
+
+                        )
+                    )
+                }
+
+
+
+
+                <div ref={bottomRef}></div>
+
+
+            </div>
+
+
+
+
+
+
+
+            <div className="input-area">
+
+
+                <input
+
+
+                value={message}
+
+
+                onChange={
+                    (e)=>
+                    setMessage(e.target.value)
+                }
+
+
+                onKeyDown={
+                    (e)=>{
+
+                        if(e.key==="Enter")
+                            sendMessage();
+
+                    }
+                }
+
+
+                placeholder="Type your message..."
+
+
+                />
+
+
+
+
+
+                <button
+                onClick={sendMessage}
+                >
+
+                    ➤
+
+                </button>
+
+
+            </div>
+
+
+
 
 
         </div>
+
 
     );
 
