@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import "./Chat.css";
 
 
-const socket = io("http://https://findit-backend-lees.onrender.com");
+const socket = io("https://findit-backend-lees.onrender.com");
 
 
 function Chat(){
@@ -133,7 +133,7 @@ const userName = user.name;
 
 
         await fetch(
-            "http://https://findit-backend-lees.onrender.com/api/chat",
+            "https://findit-backend-lees.onrender.com/api/chat",
             {
 
                 method:"POST",
