@@ -146,12 +146,42 @@ user ?
 
 <li>
 
-<span className="text-white fw-bold">
+<div className="profile-dropdown">
 
-👤 {user.name}
+    <button className="profile-btn">
 
-</span>
+        👤 {user.name} ▼
 
+    </button>
+
+
+    <div className="dropdown-menu">
+
+
+        <Link to="/profile">
+            My Profile
+        </Link>
+
+
+        <Link to="/my-reports">
+            My Reports
+        </Link>
+
+
+        <Link to="/chat">
+            Messages 💬
+        </Link>
+
+
+        <button onClick={logout}>
+            Logout
+        </button>
+
+
+    </div>
+
+
+</div>
 </li>
 
 
