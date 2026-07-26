@@ -1,0 +1,225 @@
+.report-container{
+
+    min-height:85vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#f4f7fb;
+
+    padding:40px;
+
+}
+
+
+
+.report-card{
+
+    width:500px;
+
+    background:white;
+
+    padding:35px;
+
+    border-radius:20px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,0.12);
+
+}
+
+
+
+.report-card h2{
+
+    text-align:center;
+
+    color:#198754;
+
+    font-weight:700;
+
+    margin-bottom:25px;
+
+}
+
+
+
+
+.report-card input,
+.report-card textarea{
+
+    width:100%;
+
+    padding:13px 15px;
+
+    margin-bottom:18px;
+
+    border:1px solid #ddd;
+
+    border-radius:12px;
+
+    font-size:15px;
+
+    outline:none;
+
+}
+
+
+
+.report-card textarea{
+
+    height:120px;
+
+    resize:none;
+
+}
+
+
+
+
+.report-card input:focus,
+.report-card textarea:focus{
+
+    border-color:#198754;
+
+    box-shadow:0 0 5px rgba(25,135,84,0.3);
+
+}
+
+
+
+
+
+/* File Upload */
+
+.upload-label{
+
+    display:block;
+
+    background:#e8fff3;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    text-align:center;
+
+    color:#198754;
+
+    cursor:pointer;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.upload-label:hover{
+
+    background:#d1f7e3;
+
+}
+
+
+
+.upload-label input{
+
+    display:none;
+
+}
+
+
+
+
+
+.report-card input[type="file"]{
+
+    background:#f8f9fa;
+
+    padding:10px;
+
+}
+
+
+
+
+
+.report-card button{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:25px;
+
+    background:#198754;
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+}
+
+
+
+.report-card button:hover{
+
+    background:#146c43;
+
+    transform:translateY(-2px);
+
+}
+
+
+
+
+
+.message{
+
+    text-align:center;
+
+    background:#d1e7dd;
+
+    color:#0f5132;
+
+    padding:10px;
+
+    border-radius:10px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+
+
+@media(max-width:600px){
+
+
+    .report-container{
+
+        padding:20px;
+
+    }
+
+
+    .report-card{
+
+        width:100%;
+
+        padding:25px;
+
+    }
+
+}

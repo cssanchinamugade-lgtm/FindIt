@@ -1,0 +1,181 @@
+/* ===========================
+   Search Page
+=========================== */
+
+.search-page {
+  width: 90%;
+  max-width: 1300px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.search-page h1 {
+  text-align: center;
+  color: #0d6efd;
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 35px;
+}
+
+/* ===========================
+   Search Box
+=========================== */
+
+.search-input {
+  width: 100%;
+  padding: 18px 25px;
+  border: 2px solid #0d6efd;
+  border-radius: 50px;
+  outline: none;
+  font-size: 18px;
+  transition: 0.3s;
+  margin-bottom: 40px;
+}
+
+.search-input:focus {
+  box-shadow: 0 0 15px rgba(13, 110, 253, 0.3);
+}
+
+/* ===========================
+   Grid Layout
+=========================== */
+
+.items-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 30px;
+}
+
+/* ===========================
+   Card
+=========================== */
+
+.item-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.item-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* ===========================
+   Image
+=========================== */
+
+.item-image {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+}
+
+/* ===========================
+   Card Content
+=========================== */
+
+.item-content {
+  padding: 20px;
+}
+
+.item-content h2 {
+  color: #0d6efd;
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.item-content p {
+  margin: 10px 0;
+  color: #555;
+  line-height: 1.6;
+}
+
+.item-content strong {
+  color: #222;
+}
+
+/* ===========================
+   Status Badge
+=========================== */
+
+.status {
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: white;
+}
+
+.status.lost {
+  background: #dc3545;
+}
+
+.status.found {
+  background: #198754;
+}
+
+/* ===========================
+   Empty State
+=========================== */
+
+.no-items {
+  text-align: center;
+  font-size: 24px;
+  color: #777;
+  margin-top: 60px;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media (max-width: 992px) {
+  .search-page h1 {
+    font-size: 34px;
+  }
+
+  .search-input {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .items-container {
+    grid-template-columns: 1fr;
+  }
+
+  .search-page {
+    width: 95%;
+  }
+
+  .search-page h1 {
+    font-size: 30px;
+  }
+
+  .item-content h2 {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-page h1 {
+    font-size: 26px;
+  }
+
+  .search-input {
+    padding: 15px 20px;
+    font-size: 15px;
+  }
+
+  .item-image {
+    height: 200px;
+  }
+
+  .item-content {
+    padding: 15px;
+  }
+}

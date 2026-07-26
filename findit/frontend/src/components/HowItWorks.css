@@ -1,0 +1,137 @@
+.works-section{
+
+    padding:100px 0;
+
+    background:white;
+
+}
+
+.steps-container{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:25px;
+
+}
+
+.step-card{
+
+    position:relative;
+
+    background:#f8fafc;
+
+    padding:40px 25px;
+
+    border-radius:25px;
+
+    text-align:center;
+
+    transition:.3s;
+
+}
+
+
+.step-card:hover{
+
+    transform:translateY(-10px);
+
+    background:white;
+
+    box-shadow:
+    0 20px 40px rgba(0,0,0,.08);
+
+}
+
+
+.step-number{
+
+    position:absolute;
+
+    top:15px;
+
+    right:20px;
+
+    font-size:45px;
+
+    font-weight:800;
+
+    color:#e2e8f0;
+
+}
+
+
+.step-icon{
+
+    width:75px;
+
+    height:75px;
+
+    margin:auto;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:
+    linear-gradient(
+    135deg,
+    #2563eb,
+    #7c3aed
+    );
+
+    color:white;
+
+    font-size:32px;
+
+    margin-bottom:25px;
+
+}
+
+
+.step-card h3{
+
+    font-size:22px;
+
+    font-weight:700;
+
+}
+
+
+.step-card p{
+
+    color:#64748b;
+
+    line-height:1.7;
+
+}
+
+
+@media(max-width:1000px){
+
+.steps-container{
+
+grid-template-columns:
+repeat(2,1fr);
+
+}
+
+}
+
+
+@media(max-width:600px){
+
+.steps-container{
+
+grid-template-columns:1fr;
+
+}
+
+}
+

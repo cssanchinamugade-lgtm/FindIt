@@ -1,0 +1,74 @@
+	.faq-section{
+
+    padding:100px 0;
+
+    background:white;
+
+}
+
+.faq-container{
+
+    max-width:900px;
+
+    margin:auto;
+
+}
+
+.faq-card{
+
+    background:#f8fafc;
+
+    padding:25px 30px;
+
+    border-radius:20px;
+
+    margin-bottom:20px;
+
+    transition:.3s;
+
+}
+
+
+.faq-card:hover{
+
+    background:white;
+
+    box-shadow:
+    0 15px 35px rgba(0,0,0,.08);
+
+    transform:translateY(-5px);
+
+}
+
+
+.faq-card h3{
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:#1e293b;
+
+    margin-bottom:10px;
+
+}
+
+
+.faq-card p{
+
+    color:#64748b;
+
+    line-height:1.7;
+
+}
+
+
+@media(max-width:600px){
+
+.faq-card{
+
+padding:20px;
+
+}
+
+}
