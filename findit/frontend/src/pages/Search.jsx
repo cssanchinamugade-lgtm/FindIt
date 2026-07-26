@@ -10,6 +10,8 @@ function Search() {
   const [foundItems, setFoundItems] = useState([]);
   const [search, setSearch] = useState("");
 
+  const API_URL = "https://findit-backend-lees.onrender.com";
+
   useEffect(() => {
     fetchLostItems();
     fetchFoundItems();
@@ -18,7 +20,7 @@ function Search() {
   const fetchLostItems = async () => {
     try {
       const response = await axios.get(
-        "http://https://findit-backend-lees.onrender.com/api/lost-items"
+        `${API_URL}/api/lost-items`
       );
 
       const data = response.data.map((item) => ({
@@ -28,14 +30,14 @@ function Search() {
 
       setLostItems(data);
     } catch (error) {
-      console.log(error);
+      console.error("Lost Items Error:", error);
     }
   };
 
   const fetchFoundItems = async () => {
     try {
       const response = await axios.get(
-        "http://https://findit-backend-lees.onrender.com/api/found-items"
+        `${API_URL}/api/found-items`
       );
 
       const data = response.data.map((item) => ({
@@ -45,23 +47,26 @@ function Search() {
 
       setFoundItems(data);
     } catch (error) {
-      console.log(error);
+      console.error("Found Items Error:", error);
     }
   };
 
   const allItems = [...lostItems, ...foundItems];
 
   const filteredItems = allItems.filter((item) => {
+    const name = item.itemName || "";
+    const category = item.category || "";
+
     return (
-      item.itemName.toLowerCase().includes(search.toLowerCase()) ||
-      item.category.toLowerCase().includes(search.toLowerCase())
+      name.toLowerCase().includes(search.toLowerCase()) ||
+      category.toLowerCase().includes(search.toLowerCase())
     );
   });
 
   return (
     <div className="search-page">
 
-      <h1>Search Lost & Found Items</h1>
+      <h1>🔍 Search Lost & Found Items</h1>
 
       <input
         type="text"
@@ -74,18 +79,28 @@ function Search() {
       <div className="items-container">
 
         {filteredItems.length === 0 ? (
+
           <h2>No Items Found</h2>
+
         ) : (
+
           filteredItems.map((item) => (
+
             <div className="item-card" key={item._id}>
 
               {item.image ? (
+
                 <img
-                  src={`http://https://findit-backend-lees.onrender.com/uploads/${item.image}`}
+                  src={`${API_URL}/uploads/${item.image}`}
                   alt={item.itemName}
                   className="item-image"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
                 />
+
               ) : (
+
                 <div
                   className="item-image"
                   style={{
@@ -99,6 +114,7 @@ function Search() {
                 >
                   No Image
                 </div>
+
               )}
 
               <div className="item-content">
@@ -107,34 +123,43 @@ function Search() {
 
                 <p>
                   <strong>Status:</strong>{" "}
-                  {item.status === "Lost" ? "🔴 Lost" : "🟢 Found"}
+                  {item.status === "Lost"
+                    ? "🔴 Lost"
+                    : "🟢 Found"}
                 </p>
 
                 <p>
-                  <strong>Category:</strong> {item.category}
+                  <strong>Category:</strong>{" "}
+                  {item.category}
                 </p>
 
                 <p>
-                  <strong>Description:</strong> {item.description}
+                  <strong>Description:</strong>{" "}
+                  {item.description}
                 </p>
 
                 <p>
-                  <strong>Location:</strong> {item.location}
+                  <strong>Location:</strong>{" "}
+                  {item.location}
                 </p>
 
                 <p>
                   <strong>Date:</strong>{" "}
-                  {new Date(item.date).toLocaleDateString()}
+                  {item.date
+                    ? new Date(item.date).toLocaleDateString()
+                    : "N/A"}
                 </p>
 
                 <p>
-                  <strong>Contact:</strong> {item.contact}
+                  <strong>Contact:</strong>{" "}
+                  {item.contact}
                 </p>
 
-                {/* Chat Button */}
                 <button
                   className="btn btn-primary w-100 mt-3"
-                  onClick={() => navigate(`/chat/${item._id}/${item.userId}`)}
+                  onClick={() =>
+                    navigate(`/chat/${item._id}/${item.userId}`)
+                  }
                 >
                   💬 Chat with User
                 </button>
@@ -142,7 +167,9 @@ function Search() {
               </div>
 
             </div>
+
           ))
+
         )}
 
       </div>
