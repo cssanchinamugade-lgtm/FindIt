@@ -1,229 +1,204 @@
+import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { FaSearchLocation } from "react-icons/fa";
-import "./Navbar.css";
 
-function Navbar() {
+
+function Navbar(){
 
     const navigate = useNavigate();
 
-    const [user, setUser] = useState(null);
 
-    useEffect(() => {
+    const [user,setUser] = useState(null);
 
-        const storedUser = localStorage.getItem("user");
 
-        if (storedUser) {
 
-            setUser(
-                JSON.parse(storedUser)
-            );
+    useEffect(()=>{
 
-        }
+        const loggedUser =
+        JSON.parse(localStorage.getItem("user"));
 
-    }, []);
 
-    const logout = () => {
+        setUser(loggedUser);
+
+
+    },[]);
+
+
+
+    const logout = ()=>{
+
 
         localStorage.removeItem("user");
-        localStorage.removeItem("token");
+
 
         setUser(null);
 
+
         navigate("/login");
+
 
     };
 
-    return (
 
-        <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+
+
+    return(
+
+        <nav className="navbar navbar-expand-lg bg-primary">
+
 
             <div className="container">
 
-                {/* LOGO */}
 
                 <Link
-                    className="navbar-brand logo"
-                    to="/"
+                className="navbar-brand text-white fw-bold fs-2"
+                to="/"
                 >
-
-                    <FaSearchLocation
-                        className="logo-icon"
-                    />
-
-                    <span>
-                        FindIt
-                    </span>
-
+                    🔍 FindIt
                 </Link>
 
-                {/* Mobile Toggle */}
 
-                <button
 
-                    className="navbar-toggler"
 
-                    type="button"
 
-                    data-bs-toggle="collapse"
+                <ul className="navbar-nav ms-auto d-flex flex-row gap-4 align-items-center">
 
-                    data-bs-target="#navbarMenu"
 
-                >
+                    <li>
+                    <Link
+                    className="nav-link text-white"
+                    to="/"
+                    >
+                        Home
+                    </Link>
+                    </li>
 
-                    <span className="navbar-toggler-icon"></span>
 
-                </button>
 
-                <div
-                    className="collapse navbar-collapse"
-                    id="navbarMenu"
-                >
+                    <li>
+                    <Link
+                    className="nav-link text-white"
+                    to="/search"
+                    >
+                        Search
+                    </Link>
+                    </li>
 
-                    <ul className="navbar-nav ms-auto align-items-center gap-3">
 
-                        <li className="nav-item">
 
-                            <Link
-                                className="nav-link"
-                                to="/"
-                            >
+                    <li>
+                    <Link
+                    className="nav-link text-white"
+                    to="/report-lost"
+                    >
+                        Report Lost
+                    </Link>
+                    </li>
 
-                                Home
 
-                            </Link>
 
-                        </li>
+                    <li>
+                    <Link
+                    className="nav-link text-white"
+                    to="/report-found"
+                    >
+                        Report Found
+                    </Link>
+                    </li>
 
-                        <li className="nav-item">
 
-                            <Link
-                                className="nav-link"
-                                to="/search"
-                            >
 
-                                Search
 
-                            </Link>
 
-                        </li>
+                    {
+                        user ?
 
-                        <li className="nav-item">
+                        <>
 
-                            <Link
-                                className="nav-link"
-                                to="/report-lost"
-                            >
 
-                                Report Lost
+                        <li>
 
-                            </Link>
+                        <span className="text-white fw-bold">
 
-                        </li>
+                            👤 {user.name}
 
-                        <li className="nav-item">
-
-                            <Link
-                                className="nav-link"
-                                to="/report-found"
-                            >
-
-                                Report Found
-
-                            </Link>
+                        </span>
 
                         </li>
 
-                        {
 
-                            user ?
 
-                                <>
+                        <li>
 
-                                    <li>
+                        <button
+                        className="btn btn-danger"
+                        onClick={logout}
+                        >
 
-                                        <Link
+                            Logout
 
-                                            className="btn btn-light profile-btn"
+                        </button>
 
-                                            to="/profile"
+                        </li>
 
-                                        >
 
-                                            Profile
+                        </>
 
-                                        </Link>
 
-                                    </li>
+                        :
 
-                                    <li>
 
-                                        <button
+                        <>
 
-                                            className="btn btn-danger"
 
-                                            onClick={logout}
+                        <li>
 
-                                        >
+                        <Link
+                        className="btn btn-light"
+                        to="/login"
+                        >
 
-                                            Logout
+                            Login
 
-                                        </button>
+                        </Link>
 
-                                    </li>
+                        </li>
 
-                                </>
 
-                                :
 
-                                <>
 
-                                    <li>
+                        <li>
 
-                                        <Link
+                        <Link
+                        className="btn btn-warning"
+                        to="/register"
+                        >
 
-                                            className="btn btn-light"
+                            Register
 
-                                            to="/login"
+                        </Link>
 
-                                        >
+                        </li>
 
-                                            Login
 
-                                        </Link>
+                        </>
 
-                                    </li>
 
-                                    <li>
+                    }
 
-                                        <Link
 
-                                            className="btn btn-warning"
 
-                                            to="/register"
+                </ul>
 
-                                        >
-
-                                            Register
-
-                                        </Link>
-
-                                    </li>
-
-                                </>
-
-                        }
-
-                    </ul>
-
-                </div>
 
             </div>
+
 
         </nav>
 
     );
 
 }
+
 
 export default Navbar;
