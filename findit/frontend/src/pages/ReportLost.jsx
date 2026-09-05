@@ -1,84 +1,69 @@
 import { useState } from "react";
 import "./ReportLost.css";
 
+function ReportLost() {
 
-function ReportLost(){
-
-    const [formData,setFormData] = useState({
-
-        title:"",
-        description:"",
-        category:"",
-        location:"",
-        date:""
-
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+        category: "",
+        location: "",
+        date: ""
     });
 
+    const [image, setImage] = useState(null);
 
-    const [image,setImage] = useState(null);
-
-
-    const [message,setMessage] = useState("");
+    const [message, setMessage] = useState("");
 
 
-
-
-
-    const handleChange = (e)=>{
+    const handleChange = (e) => {
 
         setFormData({
-
             ...formData,
-
-            [e.target.name]:e.target.value
-
+            [e.target.name]: e.target.value
         });
 
     };
 
 
-
-
-
-    const handleSubmit = async(e)=>{
-
+    const handleSubmit = async (e) => {
 
         e.preventDefault();
 
+        setMessage("");
 
 
-        try{
+        try {
 
-
-            // Get logged in user
-
+            // Get logged-in user
             const user = JSON.parse(
                 localStorage.getItem("user")
             );
 
+            // Get login token
+            const token = localStorage.getItem("token");
 
 
-            if(!user){
+            // Check whether user is logged in
+            if (!user || !token) {
 
-                setMessage(
-                    "Please login first"
-                );
+                setMessage("Please login first");
 
                 return;
 
             }
 
 
-
-
-
-
+            // Create FormData
             const data = new FormData();
 
 
+            // IMPORTANT:
+            // Backend expects "itemName"
+            // so we send title as itemName
 
             data.append(
-                "title",
+                "itemName",
                 formData.title
             );
 
@@ -107,18 +92,15 @@ function ReportLost(){
             );
 
 
-
-            // Important for profile/chat
-
+            // Send user ID
             data.append(
                 "userId",
                 user._id
             );
 
 
-
-
-            if(image){
+            // Add image if selected
+            if (image) {
 
                 data.append(
                     "image",
@@ -128,251 +110,190 @@ function ReportLost(){
             }
 
 
-
-
-
-
-
+            // Send request to Render backend
             const response = await fetch(
-
                 "https://findit-backend-lees.onrender.com/api/lost-items",
-
                 {
+                    method: "POST",
 
-                    method:"POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
 
-                    body:data
-
+                    body: data
                 }
-
             );
 
 
-
-
+            // Get backend response
             const result = await response.json();
 
 
-
-
-            if(response.ok){
-
+            if (response.ok) {
 
                 setMessage(
                     "Lost item reported successfully!"
                 );
 
 
-
+                // Clear form
                 setFormData({
-
-                    title:"",
-                    description:"",
-                    category:"",
-                    location:"",
-                    date:""
-
+                    title: "",
+                    description: "",
+                    category: "",
+                    location: "",
+                    date: ""
                 });
 
 
+                // Clear image
                 setImage(null);
 
 
-            }
-            else{
+                // Clear file input
+                const fileInput =
+                    document.getElementById(
+                        "lost-image"
+                    );
 
+                if (fileInput) {
+
+                    fileInput.value = "";
+
+                }
+
+            }
+
+            else {
 
                 setMessage(
                     result.message ||
                     "Something went wrong"
                 );
 
-
             }
-
-
 
         }
 
-        catch(error){
+        catch (error) {
 
-
-            console.log(error);
-
+            console.error(
+                "Report Lost Error:",
+                error
+            );
 
             setMessage(
                 "Server error"
             );
 
-
         }
-
-
 
     };
 
 
-
-
-
-
-
-    return(
-
+    return (
 
         <div className="report-container">
 
-
             <div className="report-card">
 
-
                 <h2>
-                   🚨 Report Lost Item
+                    🚨 Report Lost Item
                 </h2>
 
 
+                {message && (
 
-                {
-                    message &&
                     <p className="message">
                         {message}
                     </p>
-                }
 
-
-
-
+                )}
 
 
                 <form onSubmit={handleSubmit}>
 
+                    {/* Item Name */}
 
                     <input
-
-                    type="text"
-
-                    name="title"
-
-                    placeholder="Enter item name (Phone, Wallet, Bag...)"
-
-                    value={formData.title}
-
-                    onChange={handleChange}
-
-                    required
-
+                        type="text"
+                        name="title"
+                        placeholder="Enter item name (Phone, Wallet, Bag...)"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
                     />
 
 
-
-
-
-
+                    {/* Description */}
 
                     <textarea
-
-                    name="description"
-
-                    placeholder="Describe the item, color, brand, unique marks..."
-
-                    value={formData.description}
-
-                    onChange={handleChange}
-
-                    required
-
+                        name="description"
+                        placeholder="Describe the item, color, brand, unique marks..."
+                        value={formData.description}
+                        onChange={handleChange}
+                        required
                     />
 
 
-
-
-
-
+                    {/* Category */}
 
                     <input
-
-                    type="text"
-
-                    name="category"
-
-                    placeholder="Category (Wallet, Phone, Bag)"
-
-                    value={formData.category}
-
-                    onChange={handleChange}
-
-                    required
-
+                        type="text"
+                        name="category"
+                        placeholder="Category (Wallet, Phone, Bag)"
+                        value={formData.category}
+                        onChange={handleChange}
+                        required
                     />
 
 
-
-
-
-
-
+                    {/* Location */}
 
                     <input
-
-                    type="text"
-
-                    name="location"
-
-                    placeholder="Lost Location"
-
-                    value={formData.location}
-
-                    onChange={handleChange}
-
-                    required
-
+                        type="text"
+                        name="location"
+                        placeholder="Lost Location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        required
                     />
 
 
-
-
-
-
+                    {/* Date */}
 
                     <input
-
-                    type="date"
-
-                    name="date"
-
-                    value={formData.date}
-
-                    onChange={handleChange}
-
-                    required
-
+                        type="date"
+                        name="date"
+                        value={formData.date}
+                        onChange={handleChange}
+                        required
                     />
 
 
+                    {/* Image */}
+
+                    <label className="upload-label">
+
+                        📷 Upload Item Image
+
+                        <input
+                            id="lost-image"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+
+                                setImage(
+                                    e.target.files[0]
+                                );
+
+                            }}
+                        />
+
+                    </label>
 
 
-
-
-
-                   <label className="upload-label">
-
-📷 Upload Item Image
-
-<input
-
-type="file"
-
-accept="image/*"
-
-onChange={
-(e)=>setImage(e.target.files[0])
-}
-
-/>
-
-</label>
-
-
+                    {/* Submit */}
 
                     <button type="submit">
 
@@ -381,17 +302,11 @@ onChange={
                     </button>
 
 
-
-
                 </form>
-
-
 
             </div>
 
-
         </div>
-
 
     );
 
