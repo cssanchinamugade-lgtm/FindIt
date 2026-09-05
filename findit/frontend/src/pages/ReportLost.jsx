@@ -8,7 +8,8 @@ function ReportLost() {
         description: "",
         category: "",
         location: "",
-        date: ""
+        date: "",
+        contact: ""
     });
 
     const [image, setImage] = useState(null);
@@ -58,10 +59,7 @@ function ReportLost() {
             const data = new FormData();
 
 
-            // IMPORTANT:
             // Backend expects "itemName"
-            // so we send title as itemName
-
             data.append(
                 "itemName",
                 formData.title
@@ -89,6 +87,13 @@ function ReportLost() {
             data.append(
                 "date",
                 formData.date
+            );
+
+
+            // Contact is required by LostItem model
+            data.append(
+                "contact",
+                formData.contact
             );
 
 
@@ -142,7 +147,8 @@ function ReportLost() {
                     description: "",
                     category: "",
                     location: "",
-                    date: ""
+                    date: "",
+                    contact: ""
                 });
 
 
@@ -266,6 +272,18 @@ function ReportLost() {
                         type="date"
                         name="date"
                         value={formData.date}
+                        onChange={handleChange}
+                        required
+                    />
+
+
+                    {/* Contact */}
+
+                    <input
+                        type="text"
+                        name="contact"
+                        placeholder="Contact Number"
+                        value={formData.contact}
                         onChange={handleChange}
                         required
                     />
