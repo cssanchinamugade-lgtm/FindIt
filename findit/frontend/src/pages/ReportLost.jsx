@@ -135,7 +135,7 @@ function ReportLost(){
 
             const response = await fetch(
 
-                "http://https://findit-backend-lees.onrender.com/api/lost-items",
+                "https://findit-backend-lees.onrender.com/api/lost-items",
 
                 {
 
