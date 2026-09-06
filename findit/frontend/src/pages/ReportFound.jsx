@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 // Report Found page
@@ -159,7 +158,10 @@ function ReportFound() {
 
         catch (error) {
 
-            console.log(error);
+            console.log(
+                "Found Item Error:",
+                error
+            );
 
             setMessage(
                 "Server error"
@@ -182,6 +184,7 @@ function ReportFound() {
                 </h2>
 
                 {
+
                     message &&
 
                     <p className="message">
@@ -189,6 +192,7 @@ function ReportFound() {
                         {message}
 
                     </p>
+
                 }
 
                 <form onSubmit={handleSubmit}>
@@ -295,11 +299,12 @@ function ReportFound() {
 
                             accept="image/*"
 
-                            onChange={
-                                (e) =>
-                                    setImage(
-                                        e.target.files[0]
-                                    )
+                            onChange={(e) =>
+
+                                setImage(
+                                    e.target.files[0]
+                                )
+
                             }
 
                         />
