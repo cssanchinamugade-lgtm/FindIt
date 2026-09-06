@@ -1,3 +1,4 @@
+
 const express = require("express");
 
 const router = express.Router();
@@ -33,6 +34,118 @@ router.get("/:chatId", async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Server error"
+        });
+
+    }
+
+});
+
+
+// ===============================
+// GET USER CONVERSATIONS
+// ===============================
+
+router.get("/user/:userId", async (req, res) => {
+
+    try {
+
+        const userId =
+            req.params.userId;
+
+
+        const messages =
+            await Chat.find({
+
+                $or: [
+                    {
+                        senderId: userId
+                    },
+                    {
+                        receiverId: userId
+                    }
+                ]
+
+            }).sort({
+                createdAt: -1
+            });
+
+
+        const conversations = [];
+
+        const chatIds = [];
+
+
+        for (const message of messages) {
+
+            if (
+                chatIds.includes(
+                    message.chatId
+                )
+            ) {
+                continue;
+            }
+
+
+            chatIds.push(
+                message.chatId
+            );
+
+
+            const otherUserId =
+                message.senderId === userId
+                    ?
+                    message.receiverId
+                    :
+                    message.senderId;
+
+
+            const otherUserName =
+                message.senderId === userId
+                    ?
+                    "User"
+                    :
+                    message.senderName;
+
+
+            conversations.push({
+
+                chatId:
+                    message.chatId,
+
+                otherUserId:
+                    otherUserId,
+
+                otherUserName:
+                    otherUserName,
+
+                lastMessage:
+                    message.message
+
+            });
+
+        }
+
+
+        res.json(
+            conversations
+        );
+
+    }
+
+    catch (error) {
+
+        console.log(
+            "GET USER MESSAGES ERROR:",
+            error
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                "Server error"
+
         });
 
     }
@@ -100,3 +213,4 @@ router.post("/", async (req, res) => {
 
 
 module.exports = router;
+
