@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -240,6 +241,25 @@ io.on(
 
 
         // ===============================
+        // JOIN PERSONAL USER ROOM
+        // ===============================
+
+        socket.on(
+            "joinUser",
+            (userId) => {
+
+                socket.join(userId);
+
+                console.log(
+                    "User joined personal room:",
+                    userId
+                );
+
+            }
+        );
+
+
+        // ===============================
         // JOIN CHAT
         // ===============================
 
@@ -283,13 +303,17 @@ io.on(
                     );
 
 
-                // Send notification event
+                // Send notification directly
+                // to receiver's personal room
 
                 io
-                    .to(data.chatId)
+                    .to(data.receiverId)
                     .emit(
                         "newMessageNotification",
                         {
+
+                            senderId:
+                                data.senderId,
 
                             senderName:
                                 data.senderName,
@@ -298,7 +322,10 @@ io.on(
                                 data.message,
 
                             receiverId:
-                                data.receiverId
+                                data.receiverId,
+
+                            chatId:
+                                data.chatId
 
                         }
                     );
@@ -345,3 +372,4 @@ server.listen(
 
     }
 );
+
