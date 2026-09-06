@@ -46,7 +46,9 @@ const allowedOrigins = [
 
     "https://find-it-pi-eight.vercel.app",
 
-    "https://find-mpef8gc2l-cssanchinamugade-lgtms-projects.vercel.app"
+    "https://find-mpef8gc2l-cssanchinamugade-lgtms-projects.vercel.app",
+
+    "https://find-it-q5xe.vercel.app"
 
 ];
 
