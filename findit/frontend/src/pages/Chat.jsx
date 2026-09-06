@@ -63,7 +63,42 @@ function Chat(){
 
 
 
+    // Load previous messages
 
+    useEffect(()=>{
+
+        const loadMessages = async()=>{
+
+            try{
+
+                const response = await fetch(
+                    `https://findit-backend-lees.onrender.com/api/chat/${chatId}`
+                );
+
+                const data = await response.json();
+
+                setMessages(data);
+
+            }
+            catch(error){
+
+                console.log(
+                    "Error loading messages:",
+                    error
+                );
+
+            }
+
+        };
+
+
+        loadMessages();
+
+    },[chatId]);
+
+
+
+    // Real-time chat
 
     useEffect(()=>{
 
@@ -75,44 +110,43 @@ function Chat(){
 
 
 
+        const receiveMessage = (data)=>{
+
+            setMessages(
+                prev=>[
+                    ...prev,
+                    data
+                ]
+            );
+
+        };
+
+
+
         socket.on(
             "receiveMessage",
-            (data)=>{
-
-
-                setMessages(
-                    prev=>[
-                        ...prev,
-                        data
-                    ]
-                );
-
-
-            }
+            receiveMessage
         );
 
 
 
         return()=>{
 
-
             socket.off(
-                "receiveMessage"
+                "receiveMessage",
+                receiveMessage
             );
 
-
-        }
-
+        };
 
 
     },[chatId]);
 
 
 
-
+    // Scroll to latest message
 
     useEffect(()=>{
-
 
         bottomRef.current?.scrollIntoView({
 
@@ -120,14 +154,11 @@ function Chat(){
 
         });
 
-
     },[messages]);
 
 
 
-
-
-
+    // Send message
 
     const sendMessage = async()=>{
 
@@ -139,33 +170,25 @@ function Chat(){
 
         const data={
 
-
             chatId,
-
 
             itemId,
 
-
             senderId:userId,
-
 
             receiverId,
 
-
             senderName:userName,
 
-
-            message,
-
+            message:message.trim(),
 
             time:new Date()
-
-
 
         };
 
 
 
+        // Send instantly using Socket.IO
 
         socket.emit(
             "sendMessage",
@@ -174,59 +197,47 @@ function Chat(){
 
 
 
-        try{
+        // Save message in MongoDB
 
+        try{
 
             await fetch(
 
-            "https://findit-backend-lees.onrender.com/api/chat",
+                "https://findit-backend-lees.onrender.com/api/chat",
 
-            {
+                {
 
-                method:"POST",
+                    method:"POST",
 
+                    headers:{
 
-                headers:{
+                        "Content-Type":
+                        "application/json"
 
+                    },
 
-                    "Content-Type":
-                    "application/json"
+                    body:JSON.stringify(data)
 
-
-                },
-
-
-                body:JSON.stringify(data)
-
-
-            }
+                }
 
             );
-
 
         }
 
         catch(error){
 
-
-            console.log(error);
-
+            console.log(
+                "Error saving message:",
+                error
+            );
 
         }
 
 
 
-
-
         setMessage("");
 
-
-
     };
-
-
-
-
 
 
 
@@ -253,56 +264,61 @@ function Chat(){
 
 
 
-
-
             <div className="messages">
 
 
                 {
+
                     messages.map(
+
                         (msg,index)=>(
 
+                            <div
 
-                        <div
+                                key={
+                                    msg._id || index
+                                }
 
-                        key={index}
+                                className={
 
-                        className={
-                            msg.senderId===userId
-                            ?
-                            "my-message"
-                            :
-                            "other-message"
-                        }
+                                    msg.senderId===userId
 
+                                    ?
 
-                        >
+                                    "my-message"
 
-                            <p>
-                                {msg.message}
-                            </p>
+                                    :
 
+                                    "other-message"
 
-                            <small>
+                                }
 
-                            {
-                                new Date(
-                                    msg.time
-                                )
-                                .toLocaleTimeString()
-                            }
+                            >
 
-                            </small>
+                                <p>
+                                    {msg.message}
+                                </p>
 
 
+                                <small>
 
-                        </div>
+                                    {
+                                        new Date(
+                                            msg.time
+                                        )
+                                        .toLocaleTimeString()
+                                    }
 
+                                </small>
+
+
+                            </div>
 
                         )
-                    )
-                }
 
+                    )
+
+                }
 
 
 
@@ -313,46 +329,44 @@ function Chat(){
 
 
 
-
-
-
-
             <div className="input-area">
 
 
                 <input
 
+                    value={message}
 
-                value={message}
+                    onChange={
 
-
-                onChange={
-                    (e)=>
-                    setMessage(e.target.value)
-                }
-
-
-                onKeyDown={
-                    (e)=>{
-
-                        if(e.key==="Enter")
-                            sendMessage();
+                        (e)=>
+                        setMessage(e.target.value)
 
                     }
-                }
 
+                    onKeyDown={
 
-                placeholder="Type your message..."
+                        (e)=>{
 
+                            if(
+                                e.key==="Enter"
+                            ){
+
+                                sendMessage();
+
+                            }
+
+                        }
+
+                    }
+
+                    placeholder="Type your message..."
 
                 />
 
 
 
-
-
                 <button
-                onClick={sendMessage}
+                    onClick={sendMessage}
                 >
 
                     ➤
@@ -363,11 +377,7 @@ function Chat(){
             </div>
 
 
-
-
-
         </div>
-
 
     );
 
