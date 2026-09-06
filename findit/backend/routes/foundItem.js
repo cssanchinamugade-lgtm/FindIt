@@ -1,69 +1,41 @@
-
 const express = require("express");
 const router = express.Router();
 
 const multer = require("multer");
-
 const FoundItem = require("../models/FoundItem");
-
 const auth = require("../middleware/auth");
-
-
-
-// =========================
-// Image Upload Configuration
-// =========================
 
 const storage = multer.diskStorage({
 
     destination: (req, file, cb) => {
-
         cb(null, "uploads/");
-
     },
 
-
     filename: (req, file, cb) => {
-
-        cb(
-            null,
-            Date.now() + "-" + file.originalname
-        );
-
+        cb(null, Date.now() + "-" + file.originalname);
     }
 
 });
 
-
-const upload = multer({
-
-    storage: storage
-
-});
+const upload = multer({ storage: storage });
 
 
-
-// =========================
-// Create Found Item Report
-// =========================
-
+// REPORT FOUND ITEM
 router.post(
     "/",
     auth,
     upload.single("image"),
-
     async (req, res) => {
 
         try {
 
             const newFoundItem = new FoundItem({
 
-                // Frontend sends itemName
                 itemName: req.body.itemName,
 
-                category: req.body.category,
-
                 description: req.body.description,
+
+                category: req.body.category,
 
                 location: req.body.location,
 
@@ -71,23 +43,16 @@ router.post(
 
                 contact: req.body.contact,
 
-
-                // Get logged in user's ID
-                // from authentication token
                 userId: req.user.id,
 
-
-                // Save uploaded image filename
                 image: req.file
                     ? req.file.filename
                     : null
 
             });
 
-
             const savedItem =
                 await newFoundItem.save();
-
 
             res.status(201).json({
 
@@ -105,16 +70,16 @@ router.post(
         catch (error) {
 
             console.log(
-                "Found Item Error:",
+                "FOUND ITEM ERROR:",
                 error
             );
-
 
             res.status(500).json({
 
                 success: false,
 
-                message: "Server error"
+                message:
+                    error.message
 
             });
 
@@ -124,121 +89,97 @@ router.post(
 );
 
 
+// GET ALL FOUND ITEMS
+router.get("/", async (req, res) => {
 
-// =========================
-// Get All Found Items
-// =========================
+    try {
 
-router.get(
-    "/",
-    async (req, res) => {
+        const items =
+            await FoundItem
+                .find()
+                .populate(
+                    "userId",
+                    "name email"
+                );
 
-        try {
+        res.json(items);
 
-            const items =
-                await FoundItem
-                    .find()
-                    .populate(
-                        "userId",
-                        "name email"
-                    );
+    }
+
+    catch (error) {
+
+        console.log(
+            "GET FOUND ITEMS ERROR:",
+            error
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                "Server error"
+
+        });
+
+    }
+
+});
 
 
-            res.json(items);
+// GET SINGLE FOUND ITEM
+router.get("/:id", async (req, res) => {
 
-        }
+    try {
 
-        catch (error) {
+        const item =
+            await FoundItem
+                .findById(req.params.id)
+                .populate(
+                    "userId",
+                    "name email"
+                );
 
-            console.log(
-                "Get Found Items Error:",
-                error
-            );
+        if (!item) {
 
+            return res.status(404).json({
 
-            res.status(500).json({
-
-                success: false,
-
-                message: "Server error"
+                message:
+                    "Item not found"
 
             });
 
         }
 
-    }
-);
-
-
-
-// =========================
-// Get Single Found Item
-// =========================
-
-router.get(
-    "/:id",
-    async (req, res) => {
-
-        try {
-
-            const item =
-                await FoundItem
-                    .findById(
-                        req.params.id
-                    )
-                    .populate(
-                        "userId",
-                        "name email"
-                    );
-
-
-            if (!item) {
-
-                return res.status(404).json({
-
-                    message:
-                        "Item not found"
-
-                });
-
-            }
-
-
-            res.json(item);
-
-        }
-
-        catch (error) {
-
-            console.log(
-                "Get Single Found Item Error:",
-                error
-            );
-
-
-            res.status(500).json({
-
-                success: false,
-
-                message: "Server error"
-
-            });
-
-        }
+        res.json(item);
 
     }
-);
+
+    catch (error) {
+
+        console.log(
+            "GET SINGLE FOUND ITEM ERROR:",
+            error
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                "Server error"
+
+        });
+
+    }
+
+});
 
 
-
-// =========================
-// Delete Found Item
-// =========================
-
+// DELETE FOUND ITEM
 router.delete(
     "/:id",
     auth,
-
     async (req, res) => {
 
         try {
@@ -248,7 +189,6 @@ router.delete(
                     req.params.id
                 );
 
-
             if (!item) {
 
                 return res.status(404).json({
@@ -259,10 +199,6 @@ router.delete(
                 });
 
             }
-
-
-            // Only the user who reported
-            // the item can delete it
 
             if (
                 item.userId.toString() !==
@@ -278,11 +214,9 @@ router.delete(
 
             }
 
-
             await FoundItem.findByIdAndDelete(
                 req.params.id
             );
-
 
             res.json({
 
@@ -296,16 +230,16 @@ router.delete(
         catch (error) {
 
             console.log(
-                "Delete Found Item Error:",
+                "DELETE FOUND ITEM ERROR:",
                 error
             );
-
 
             res.status(500).json({
 
                 success: false,
 
-                message: "Server error"
+                message:
+                    "Server error"
 
             });
 
@@ -315,6 +249,4 @@ router.delete(
 );
 
 
-
 module.exports = router;
-
