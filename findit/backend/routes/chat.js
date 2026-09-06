@@ -5,76 +5,75 @@ const router = express.Router();
 const Chat = require("../models/Chat");
 
 
+// Get previous messages
 
+router.get("/:chatId", async (req, res) => {
 
-// Get messages
-
-router.get("/:chatId",async(req,res)=>{
-
-
-    try{
-
+    try {
 
         const messages = await Chat.find({
-
-            chatId:req.params.chatId
-
+            chatId: req.params.chatId
+        }).sort({
+            time: 1
         });
-
 
         res.json(messages);
 
-
-    }
-    catch(error){
-
-
-        res.status(500)
-        .json(error);
-
-
     }
 
+    catch (error) {
+
+        console.log("GET CHAT ERROR:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+
+    }
 
 });
-
-
-
-
-
 
 
 // Save message
 
-router.post("/",async(req,res)=>{
+router.post("/", async (req, res) => {
+
+    try {
+
+        const newMessage = new Chat({
+            chatId: req.body.chatId,
+            itemId: req.body.itemId,
+            senderId: req.body.senderId,
+            receiverId: req.body.receiverId,
+            senderName: req.body.senderName,
+            message: req.body.message,
+            time: req.body.time || new Date()
+        });
 
 
-    try{
+        const savedMessage = await newMessage.save();
 
 
-        const newMessage = await Chat.create(
-            req.body
-        );
-
-
-        res.json(newMessage);
-
-
+        res.status(201).json({
+            success: true,
+            message: savedMessage
+        });
 
     }
-    catch(error){
 
+    catch (error) {
 
-        res.status(500)
-        .json(error);
+        console.log("SAVE CHAT ERROR:", error);
 
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
 
     }
-
 
 });
-
-
 
 
 module.exports = router;
