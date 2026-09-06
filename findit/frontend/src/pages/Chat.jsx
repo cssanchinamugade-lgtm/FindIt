@@ -3,9 +3,11 @@ import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
 import "./Chat.css";
 
+
 const socket = io(
     "https://findit-backend-lees.onrender.com"
 );
+
 
 function Chat() {
 
@@ -14,298 +16,35 @@ function Chat() {
         receiverId
     } = useParams();
 
+
     const [message, setMessage] = useState("");
 
     const [messages, setMessages] = useState([]);
 
-    const [receiverName, setReceiverName] =
-        useState("Chat With User");
-
     const bottomRef = useRef();
+
 
     const user = JSON.parse(
         localStorage.getItem("user")
     );
 
+
     const userId = user?.id;
 
     const userName = user?.name;
 
-    const chatId = userId && receiverId
-        ? [
-            userId,
-            receiverId
-        ]
-        .sort()
-        .join("_")
-        : "";
 
-    // ===============================
-    // GET REAL RECEIVER NAME
-    // ===============================
-
-    useEffect(() => {
-
-        const getReceiverName = async () => {
-
-            try {
-
-                const response = await fetch(
-                    `https://findit-backend-lees.onrender.com/api/auth/user/${receiverId}`
-                );
-
-                if (!response.ok) {
-                    return;
-                }
-
-                const data = await response.json();
-
-                setReceiverName(data.name);
-
-            }
-
-            catch (error) {
-
-                console.log(
-                    "Error getting user:",
-                    error
-                );
-
-            }
-
-        };
-
-        if (receiverId) {
-            getReceiverName();
-        }
-
-    }, [receiverId]);
-
-
-    // ===============================
-    // LOAD PREVIOUS MESSAGES
-    // ===============================
-
-    useEffect(() => {
-
-        const loadMessages = async () => {
-
-            try {
-
-                const response = await fetch(
-                    `https://findit-backend-lees.onrender.com/api/chat/${chatId}`
-                );
-
-                const data = await response.json();
-
-                setMessages(data);
-
-            }
-
-            catch (error) {
-
-                console.log(
-                    "Error loading messages:",
-                    error
-                );
-
-            }
-
-        };
-
-        if (chatId) {
-            loadMessages();
-        }
-
-    }, [chatId]);
-
-
-    // ===============================
-    // REAL TIME CHAT
-    // ===============================
-
-    useEffect(() => {
-
-        if (!chatId) {
-            return;
-        }
-
-        socket.emit(
-            "joinChat",
-            chatId
-        );
-
-
-        // Receive message
-
-        const receiveMessage = (data) => {
-
-            setMessages(
-                prev => [
-                    ...prev,
-                    data
-                ]
-            );
-
-        };
-
-
-        socket.on(
-            "receiveMessage",
-            receiveMessage
-        );
-
-
-        // Notification
-
-        const receiveNotification = (data) => {
-
-            if (
-                data.receiverId === userId
-            ) {
-
-                if (
-                    "Notification" in window &&
-                    Notification.permission === "granted"
-                ) {
-
-                    new Notification(
-                        `New message from ${data.senderName}`,
-                        {
-                            body: data.message
-                        }
-                    );
-
-                }
-
-            }
-
-        };
-
-
-        socket.on(
-            "newMessageNotification",
-            receiveNotification
-        );
-
-
-        // Ask notification permission
-
-        if (
-            "Notification" in window &&
-            Notification.permission === "default"
-        ) {
-
-            Notification.requestPermission();
-
-        }
-
-
-        return () => {
-
-            socket.off(
-                "receiveMessage",
-                receiveMessage
-            );
-
-            socket.off(
-                "newMessageNotification",
-                receiveNotification
-            );
-
-        };
-
-    }, [chatId, userId]);
-
-
-    // ===============================
-    // SCROLL TO BOTTOM
-    // ===============================
-
-    useEffect(() => {
-
-        bottomRef.current?.scrollIntoView({
-            behavior: "smooth"
-        });
-
-    }, [messages]);
-
-
-    // ===============================
-    // SEND MESSAGE
-    // ===============================
-
-    const sendMessage = async () => {
-
-        if (!message.trim()) {
-            return;
-        }
-
-        const data = {
-
-            chatId,
-
-            itemId,
-
-            senderId: userId,
-
-            receiverId,
-
-            senderName: userName,
-
-            message: message.trim(),
-
-            time: new Date()
-
-        };
-
-
-        // Real-time message
-
-        socket.emit(
-            "sendMessage",
-            data
-        );
-
-
-        // Save message in MongoDB
-
-        try {
-
-            await fetch(
-
-                "https://findit-backend-lees.onrender.com/api/chat",
-
-                {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify(data)
-
-                }
-
-            );
-
-        }
-
-        catch (error) {
-
-            console.log(
-                "Error saving message:",
-                error
-            );
-
-        }
-
-
-        setMessage("");
-
-    };
+    const chatId =
+        userId && receiverId
+            ?
+            [
+                userId,
+                receiverId
+            ]
+                .sort()
+                .join("_")
+            :
+            "";
 
 
     // ===============================
@@ -328,17 +67,237 @@ function Chat() {
 
 
     // ===============================
-    // CHAT UI
+    // LOAD OLD MESSAGES
     // ===============================
+
+    useEffect(() => {
+
+        const loadMessages = async () => {
+
+            try {
+
+                const response = await fetch(
+
+                    `https://findit-backend-lees.onrender.com/api/chat/${chatId}`
+
+                );
+
+
+                const data =
+                    await response.json();
+
+
+                setMessages(data);
+
+            }
+
+            catch (error) {
+
+                console.log(
+                    "Error loading messages:",
+                    error
+                );
+
+            }
+
+        };
+
+
+        if (chatId) {
+
+            loadMessages();
+
+        }
+
+    }, [chatId]);
+
+
+    // ===============================
+    // REAL TIME SOCKET
+    // ===============================
+
+    useEffect(() => {
+
+        if (!chatId) {
+            return;
+        }
+
+
+        console.log(
+            "Joining chat:",
+            chatId
+        );
+
+
+        socket.emit(
+            "joinChat",
+            chatId
+        );
+
+
+        const receiveMessage = (data) => {
+
+            console.log(
+                "MESSAGE RECEIVED:",
+                data
+            );
+
+
+            if (
+                data.chatId === chatId
+            ) {
+
+                setMessages(
+                    previous => [
+                        ...previous,
+                        data
+                    ]
+                );
+
+            }
+
+        };
+
+
+        socket.on(
+            "receiveMessage",
+            receiveMessage
+        );
+
+
+        return () => {
+
+            socket.off(
+                "receiveMessage",
+                receiveMessage
+            );
+
+        };
+
+
+    }, [chatId]);
+
+
+    // ===============================
+    // AUTO SCROLL
+    // ===============================
+
+    useEffect(() => {
+
+        bottomRef.current?.scrollIntoView({
+
+            behavior: "smooth"
+
+        });
+
+    }, [messages]);
+
+
+    // ===============================
+    // SEND MESSAGE
+    // ===============================
+
+    const sendMessage = async () => {
+
+        if (!message.trim()) {
+            return;
+        }
+
+
+        const data = {
+
+            chatId,
+
+            senderId: userId,
+
+            receiverId,
+
+            senderName: userName,
+
+            message: message.trim(),
+
+            createdAt: new Date()
+
+        };
+
+
+        console.log(
+            "SENDING MESSAGE:",
+            data
+        );
+
+
+        // Send through Socket.IO
+
+        socket.emit(
+            "sendMessage",
+            data
+        );
+
+
+        // Save in MongoDB
+
+        try {
+
+            const response = await fetch(
+
+                "https://findit-backend-lees.onrender.com/api/chat",
+
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(data)
+
+                }
+
+            );
+
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "MESSAGE SAVED:",
+                result
+            );
+
+
+        }
+
+        catch (error) {
+
+            console.log(
+                "ERROR SAVING MESSAGE:",
+                error
+            );
+
+        }
+
+
+        setMessage("");
+
+    };
+
 
     return (
 
         <div className="whatsapp-container">
 
+
             <div className="chat-header">
 
                 <h2>
-                    {receiverName} 💬
+                    Chat With User 💬
                 </h2>
 
                 <span>
@@ -350,8 +309,11 @@ function Chat() {
 
             <div className="messages">
 
+
                 {
+
                     messages.map(
+
                         (msg, index) => (
 
                             <div
@@ -362,7 +324,11 @@ function Chat() {
 
                                 className={
 
-                                    msg.senderId === userId
+                                    String(
+                                        msg.senderId
+                                    ) === String(
+                                        userId
+                                    )
 
                                         ?
 
@@ -380,41 +346,54 @@ function Chat() {
                                     {msg.message}
                                 </p>
 
+
                                 <small>
 
                                     {
+
                                         new Date(
-                                            msg.time
+                                            msg.createdAt
                                         )
-                                        .toLocaleTimeString()
+                                            .toLocaleTimeString()
+
                                     }
 
                                 </small>
 
+
                             </div>
 
                         )
+
                     )
+
                 }
 
 
                 <div ref={bottomRef}></div>
+
 
             </div>
 
 
             <div className="input-area">
 
+
                 <input
 
                     value={message}
 
                     onChange={
+
                         (e) =>
-                            setMessage(e.target.value)
+                            setMessage(
+                                e.target.value
+                            )
+
                     }
 
                     onKeyDown={
+
                         (e) => {
 
                             if (
@@ -426,6 +405,7 @@ function Chat() {
                             }
 
                         }
+
                     }
 
                     placeholder="Type your message..."
@@ -441,12 +421,15 @@ function Chat() {
 
                 </button>
 
+
             </div>
+
 
         </div>
 
     );
 
 }
+
 
 export default Chat;
