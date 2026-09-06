@@ -104,7 +104,7 @@ function MyReports() {
       await axios.delete(
 
 
-        `https://findit-backend-lees.onrender.com/api/lost-items/${id}`,
+        "https://findit-backend-lees.onrender.com/api/lost-items/${id}",
 
 
         {
@@ -217,7 +217,7 @@ function MyReports() {
             <img
 
             src={
-              `https://findit-backend-lees.onrender.com/uploads/${item.image}`
+              "https://findit-backend-lees.onrender.com/uploads/${item.image}"
             }
 
             alt={item.itemName}

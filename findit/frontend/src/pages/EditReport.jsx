@@ -44,7 +44,7 @@ function EditReport() {
 
     try {
       await axios.put(
-        `https://findit-backend-lees.onrender.com/api/lost-items/${id}`,
+        "https://findit-backend-lees.onrender.com/api/lost-items/${id}",
         {
           itemName,
           category,
