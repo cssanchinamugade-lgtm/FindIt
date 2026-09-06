@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -43,7 +44,9 @@ const allowedOrigins = [
 
     "http://localhost:5173",
 
-    "https://find-it-pi-eight.vercel.app"
+    "https://find-it-pi-eight.vercel.app",
+
+    "https://find-mpef8gc2l-cssanchinamugade-lgtms-projects.vercel.app"
 
 ];
 
