@@ -8,172 +8,306 @@ const { Server } = require("socket.io");
 require("dotenv").config();
 
 
-// Routes
-const authRoutes = require("./routes/auth");
-const lostItemRoutes = require("./routes/lostItem");
-const foundItemRoutes = require("./routes/foundItem");
-const dashboardRoutes = require("./routes/dashboard");
-const chatRoutes = require("./routes/chat");
+// ===============================
+// ROUTES
+// ===============================
+
+const authRoutes =
+    require("./routes/auth");
+
+const lostItemRoutes =
+    require("./routes/lostItem");
+
+const foundItemRoutes =
+    require("./routes/foundItem");
+
+const dashboardRoutes =
+    require("./routes/dashboard");
+
+const chatRoutes =
+    require("./routes/chat");
 
 
+// ===============================
+// APP
+// ===============================
 
 const app = express();
 
 
-// Middleware
+// ===============================
+// ALLOWED FRONTENDS
+// ===============================
 
-app.use(cors());
+const allowedOrigins = [
 
-app.use(express.json());
+    "http://localhost:5173",
 
+    "https://find-it-pi-eight.vercel.app"
+
+];
+
+
+// ===============================
+// CORS
+// ===============================
 
 app.use(
-    "/uploads",
-    express.static(path.join(__dirname,"uploads"))
+    cors({
+
+        origin: function (origin, callback) {
+
+            if (!origin) {
+
+                return callback(null, true);
+
+            }
+
+
+            if (
+                allowedOrigins.includes(origin)
+            ) {
+
+                return callback(null, true);
+
+            }
+
+
+            return callback(
+                new Error(
+                    "Not allowed by CORS"
+                )
+            );
+
+        },
+
+        credentials: true
+
+    })
 );
 
 
+// ===============================
+// MIDDLEWARE
+// ===============================
 
-// API Routes
-
-app.use("/api/auth",authRoutes);
-
-app.use("/api/lost-items",lostItemRoutes);
-
-app.use("/api/found-items",foundItemRoutes);
-
-app.use("/api/dashboard",dashboardRoutes);
-
-app.use("/api/chat",chatRoutes);
+app.use(
+    express.json()
+);
 
 
+// ===============================
+// UPLOADS
+// ===============================
+
+app.use(
+    "/uploads",
+
+    express.static(
+        path.join(
+            __dirname,
+            "uploads"
+        )
+    )
+);
 
 
-// MongoDB Connection
+// ===============================
+// API ROUTES
+// ===============================
 
-mongoose.connect(process.env.MONGO_URI)
+app.use(
+    "/api/auth",
+    authRoutes
+);
 
-.then(()=>{
 
-    console.log("MongoDB Connected");
+app.use(
+    "/api/lost-items",
+    lostItemRoutes
+);
+
+
+app.use(
+    "/api/found-items",
+    foundItemRoutes
+);
+
+
+app.use(
+    "/api/dashboard",
+    dashboardRoutes
+);
+
+
+app.use(
+    "/api/chat",
+    chatRoutes
+);
+
+
+// ===============================
+// MONGODB
+// ===============================
+
+mongoose.connect(
+    process.env.MONGO_URI
+)
+
+.then(() => {
+
+    console.log(
+        "MongoDB Connected"
+    );
 
 })
 
-.catch((error)=>{
-
-    console.log(error);
-
-});
-
-
-
-
-// Home Route
-
-app.get("/",(req,res)=>{
-
-    res.send("FindIt Backend Server Running");
-
-});
-
-
-
-
-
-// ---------------- SOCKET.IO ----------------
-
-
-const server = http.createServer(app);
-
-
-
-const io = new Server(server,{
-
-    cors:{
-        origin:"http://localhost:5173",
-        methods:["GET","POST"]
-    }
-
-});
-
-
-
-
-io.on("connection",(socket)=>{
-
-
-    console.log("User Connected:",socket.id);
-
-
-
-    // Join private chat room
-
-    socket.on("joinChat",(chatId)=>{
-
-        socket.join(chatId);
-
-        console.log(
-            "User joined chat:",
-            chatId
-        );
-
-    });
-
-
-
-
-
-    // Send message
-
-    socket.on("sendMessage",(data)=>{
-
-
-        console.log(
-            "Message:",
-            data
-        );
-
-
-        io
-        .to(data.chatId)
-        .emit(
-            "receiveMessage",
-            data
-        );
-
-
-    });
-
-
-
-
-
-    // Disconnect
-
-    socket.on("disconnect",()=>{
-
-        console.log(
-            "User Disconnected:",
-            socket.id
-        );
-
-    });
-
-
-});
-
-
-
-
-
-
-const PORT = 5000;
-
-
-server.listen(PORT,()=>{
+.catch((error) => {
 
     console.log(
-        `Server running on port ${PORT}`
+        "MongoDB Connection Error:",
+        error
     );
 
 });
+
+
+// ===============================
+// HOME
+// ===============================
+
+app.get(
+    "/",
+    (req, res) => {
+
+        res.send(
+            "FindIt Backend Server Running"
+        );
+
+    }
+);
+
+
+// ===============================
+// HTTP SERVER
+// ===============================
+
+const server =
+    http.createServer(app);
+
+
+// ===============================
+// SOCKET.IO
+// ===============================
+
+const io = new Server(
+    server,
+    {
+
+        cors: {
+
+            origin: allowedOrigins,
+
+            methods: [
+                "GET",
+                "POST"
+            ],
+
+            credentials: true
+
+        }
+
+    }
+);
+
+
+// ===============================
+// SOCKET CONNECTION
+// ===============================
+
+io.on(
+    "connection",
+    (socket) => {
+
+        console.log(
+            "User Connected:",
+            socket.id
+        );
+
+
+        // JOIN CHAT
+
+        socket.on(
+            "joinChat",
+            (chatId) => {
+
+                socket.join(chatId);
+
+                console.log(
+                    "User joined chat:",
+                    chatId
+                );
+
+            }
+        );
+
+
+        // SEND MESSAGE
+
+        socket.on(
+            "sendMessage",
+            (data) => {
+
+                console.log(
+                    "Message:",
+                    data
+                );
+
+
+                io
+                    .to(data.chatId)
+                    .emit(
+                        "receiveMessage",
+                        data
+                    );
+
+            }
+        );
+
+
+        // DISCONNECT
+
+        socket.on(
+            "disconnect",
+            () => {
+
+                console.log(
+                    "User Disconnected:",
+                    socket.id
+                );
+
+            }
+        );
+
+    }
+);
+
+
+// ===============================
+// START SERVER
+// ===============================
+
+const PORT =
+    process.env.PORT || 5000;
+
+
+server.listen(
+    PORT,
+    () => {
+
+        console.log(
+            `Server running on port ${PORT}`
+        );
+
+    }
+);
