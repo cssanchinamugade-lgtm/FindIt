@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -240,7 +239,9 @@ io.on(
         );
 
 
+        // ===============================
         // JOIN CHAT
+        // ===============================
 
         socket.on(
             "joinChat",
@@ -257,7 +258,9 @@ io.on(
         );
 
 
+        // ===============================
         // SEND MESSAGE
+        // ===============================
 
         socket.on(
             "sendMessage",
@@ -269,6 +272,9 @@ io.on(
                 );
 
 
+                // Send message to users
+                // inside this chat room
+
                 io
                     .to(data.chatId)
                     .emit(
@@ -276,11 +282,34 @@ io.on(
                         data
                     );
 
+
+                // Send notification event
+
+                io
+                    .to(data.chatId)
+                    .emit(
+                        "newMessageNotification",
+                        {
+
+                            senderName:
+                                data.senderName,
+
+                            message:
+                                data.message,
+
+                            receiverId:
+                                data.receiverId
+
+                        }
+                    );
+
             }
         );
 
 
+        // ===============================
         // DISCONNECT
+        // ===============================
 
         socket.on(
             "disconnect",

@@ -63,7 +63,9 @@ function Chat(){
 
 
 
-    // Load previous messages
+    // ===============================
+    // LOAD PREVIOUS MESSAGES
+    // ===============================
 
     useEffect(()=>{
 
@@ -98,10 +100,27 @@ function Chat(){
 
 
 
-    // Real-time chat
+    // ===============================
+    // REAL TIME CHAT + NOTIFICATIONS
+    // ===============================
 
     useEffect(()=>{
 
+
+        // Ask for notification permission
+
+        if(
+            "Notification" in window &&
+            Notification.permission === "default"
+        ){
+
+            Notification.requestPermission();
+
+        }
+
+
+
+        // Join chat room
 
         socket.emit(
             "joinChat",
@@ -109,6 +128,8 @@ function Chat(){
         );
 
 
+
+        // Receive real-time message
 
         const receiveMessage = (data)=>{
 
@@ -130,6 +151,46 @@ function Chat(){
 
 
 
+        // Receive notification
+
+        const receiveNotification = (data)=>{
+
+
+            // Only notify the receiver
+
+            if(
+                data.receiverId === userId
+            ){
+
+                if(
+                    "Notification" in window &&
+                    Notification.permission === "granted"
+                ){
+
+                    new Notification(
+                        `New message from ${data.senderName}`,
+                        {
+                            body:data.message
+                        }
+                    );
+
+                }
+
+            }
+
+        };
+
+
+
+        socket.on(
+            "newMessageNotification",
+            receiveNotification
+        );
+
+
+
+        // Cleanup
+
         return()=>{
 
             socket.off(
@@ -137,14 +198,22 @@ function Chat(){
                 receiveMessage
             );
 
+
+            socket.off(
+                "newMessageNotification",
+                receiveNotification
+            );
+
         };
 
 
-    },[chatId]);
+    },[chatId,userId]);
 
 
 
-    // Scroll to latest message
+    // ===============================
+    // SCROLL TO LATEST MESSAGE
+    // ===============================
 
     useEffect(()=>{
 
@@ -158,7 +227,9 @@ function Chat(){
 
 
 
-    // Send message
+    // ===============================
+    // SEND MESSAGE
+    // ===============================
 
     const sendMessage = async()=>{
 
@@ -240,6 +311,10 @@ function Chat(){
     };
 
 
+
+    // ===============================
+    // CHAT UI
+    // ===============================
 
     return(
 
