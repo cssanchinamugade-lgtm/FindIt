@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./ReportLost.css";
 
+
 function ReportLost() {
 
     const [formData, setFormData] = useState({
@@ -12,9 +13,17 @@ function ReportLost() {
         contact: ""
     });
 
+
     const [image, setImage] = useState(null);
 
     const [message, setMessage] = useState("");
+
+
+    // Automatically select backend
+    const API_URL =
+        window.location.hostname === "localhost"
+            ? "http://localhost:5000"
+            : "https://findit-backend-lees.onrender.com";
 
 
     const handleChange = (e) => {
@@ -36,30 +45,80 @@ function ReportLost() {
 
         try {
 
-            // Get logged-in user
+            // =========================
+            // GET USER
+            // =========================
+
             const user = JSON.parse(
                 localStorage.getItem("user")
             );
 
-            // Get login token
-            const token = localStorage.getItem("token");
+
+            // =========================
+            // GET TOKEN
+            // =========================
+
+            const token =
+                localStorage.getItem("token");
 
 
-            // Check whether user is logged in
+            // =========================
+            // CHECK LOGIN
+            // =========================
+
             if (!user || !token) {
 
-                setMessage("Please login first");
+                setMessage(
+                    "Please login first"
+                );
 
                 return;
-
             }
 
 
-            // Create FormData
+            // =========================
+            // GET USER ID
+            // =========================
+
+            const userId =
+                user._id ||
+                user.id ||
+                user.userId;
+
+
+            console.log(
+                "Logged in user:",
+                user
+            );
+
+
+            console.log(
+                "User ID:",
+                userId
+            );
+
+
+            // =========================
+            // CHECK USER ID
+            // =========================
+
+            if (!userId) {
+
+                setMessage(
+                    "User ID not found. Please logout and login again."
+                );
+
+                return;
+            }
+
+
+            // =========================
+            // CREATE FORMDATA
+            // =========================
+
             const data = new FormData();
 
 
-            // Backend expects "itemName"
             data.append(
                 "itemName",
                 formData.title
@@ -90,21 +149,22 @@ function ReportLost() {
             );
 
 
-            // Contact is required by LostItem model
             data.append(
                 "contact",
                 formData.contact
             );
 
 
-            // Send user ID
             data.append(
                 "userId",
-                user._id
+                userId
             );
 
 
-            // Add image if selected
+            // =========================
+            // IMAGE
+            // =========================
+
             if (image) {
 
                 data.append(
@@ -115,14 +175,18 @@ function ReportLost() {
             }
 
 
-            // Send request to Render backend
+            // =========================
+            // SEND REQUEST
+            // =========================
+
             const response = await fetch(
-                "https://findit-backend-lees.onrender.com/api/lost-items",
+                `${API_URL}/api/lost-items`,
                 {
                     method: "POST",
 
                     headers: {
-                        Authorization: `Bearer ${token}`
+                        Authorization:
+                            `Bearer ${token}`
                     },
 
                     body: data
@@ -130,18 +194,33 @@ function ReportLost() {
             );
 
 
-            // Get backend response
-            const result = await response.json();
+            // =========================
+            // RESPONSE
+            // =========================
 
+            const result =
+                await response.json();
+
+
+            console.log(
+                "Lost Item Response:",
+                result
+            );
+
+
+            // =========================
+            // SUCCESS
+            // =========================
 
             if (response.ok) {
 
                 setMessage(
-                    "Lost item reported successfully!"
+                    "Lost item reported successfully! 🎉"
                 );
 
 
                 // Clear form
+
                 setFormData({
                     title: "",
                     description: "",
@@ -153,14 +232,17 @@ function ReportLost() {
 
 
                 // Clear image
+
                 setImage(null);
 
 
                 // Clear file input
+
                 const fileInput =
                     document.getElementById(
                         "lost-image"
                     );
+
 
                 if (fileInput) {
 
@@ -188,8 +270,9 @@ function ReportLost() {
                 error
             );
 
+
             setMessage(
-                "Server error"
+                "Server error. Please check the backend."
             );
 
         }
@@ -202,6 +285,7 @@ function ReportLost() {
         <div className="report-container">
 
             <div className="report-card">
+
 
                 <h2>
                     🚨 Report Lost Item
@@ -219,7 +303,8 @@ function ReportLost() {
 
                 <form onSubmit={handleSubmit}>
 
-                    {/* Item Name */}
+
+                    {/* ITEM NAME */}
 
                     <input
                         type="text"
@@ -231,7 +316,7 @@ function ReportLost() {
                     />
 
 
-                    {/* Description */}
+                    {/* DESCRIPTION */}
 
                     <textarea
                         name="description"
@@ -242,7 +327,7 @@ function ReportLost() {
                     />
 
 
-                    {/* Category */}
+                    {/* CATEGORY */}
 
                     <input
                         type="text"
@@ -254,7 +339,7 @@ function ReportLost() {
                     />
 
 
-                    {/* Location */}
+                    {/* LOCATION */}
 
                     <input
                         type="text"
@@ -266,7 +351,7 @@ function ReportLost() {
                     />
 
 
-                    {/* Date */}
+                    {/* DATE */}
 
                     <input
                         type="date"
@@ -277,7 +362,7 @@ function ReportLost() {
                     />
 
 
-                    {/* Contact */}
+                    {/* CONTACT */}
 
                     <input
                         type="text"
@@ -289,7 +374,7 @@ function ReportLost() {
                     />
 
 
-                    {/* Image */}
+                    {/* IMAGE */}
 
                     <label className="upload-label">
 
@@ -311,7 +396,7 @@ function ReportLost() {
                     </label>
 
 
-                    {/* Submit */}
+                    {/* SUBMIT */}
 
                     <button type="submit">
 
@@ -327,7 +412,6 @@ function ReportLost() {
         </div>
 
     );
-
 }
 
 
