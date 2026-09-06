@@ -164,7 +164,7 @@ function ReportFound() {
             );
 
             setMessage(
-                "Server error"
+                error.message || "Server error"
             );
 
         }
