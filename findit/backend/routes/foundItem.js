@@ -1,9 +1,12 @@
+
 const express = require("express");
 const router = express.Router();
 
 const multer = require("multer");
 
 const FoundItem = require("../models/FoundItem");
+
+const auth = require("../middleware/auth");
 
 
 
@@ -13,36 +16,30 @@ const FoundItem = require("../models/FoundItem");
 
 const storage = multer.diskStorage({
 
-    destination:(req,file,cb)=>{
+    destination: (req, file, cb) => {
 
-        cb(null,"uploads/");
+        cb(null, "uploads/");
 
     },
 
 
-    filename:(req,file,cb)=>{
-
+    filename: (req, file, cb) => {
 
         cb(
             null,
             Date.now() + "-" + file.originalname
         );
 
-
     }
 
-
 });
-
 
 
 const upload = multer({
 
-    storage:storage
+    storage: storage
 
 });
-
-
 
 
 
@@ -50,93 +47,81 @@ const upload = multer({
 // Create Found Item Report
 // =========================
 
-
 router.post(
-"/",
-upload.single("image"),
-async(req,res)=>{
+    "/",
+    auth,
+    upload.single("image"),
+
+    async (req, res) => {
+
+        try {
+
+            const newFoundItem = new FoundItem({
+
+                // Frontend sends itemName
+                itemName: req.body.itemName,
+
+                category: req.body.category,
+
+                description: req.body.description,
+
+                location: req.body.location,
+
+                date: req.body.date,
+
+                contact: req.body.contact,
 
 
-    try{
+                // Get logged in user's ID
+                // from authentication token
+                userId: req.user.id,
 
 
-        const newFoundItem = new FoundItem({
+                // Save uploaded image filename
+                image: req.file
+                    ? req.file.filename
+                    : null
+
+            });
 
 
-            title:req.body.title,
+            const savedItem =
+                await newFoundItem.save();
 
 
-            description:req.body.description,
+            res.status(201).json({
+
+                success: true,
+
+                message:
+                    "Found item reported successfully",
+
+                item: savedItem
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.log(
+                "Found Item Error:",
+                error
+            );
 
 
-            category:req.body.category,
+            res.status(500).json({
 
+                success: false,
 
-            location:req.body.location,
+                message: "Server error"
 
+            });
 
-            date:req.body.date,
-
-
-
-            // Logged in user ID
-
-            userId:req.body.userId,
-
-
-
-            image:req.file
-            ? req.file.filename
-            : null
-
-
-
-        });
-
-
-
-
-
-        const savedItem = await newFoundItem.save();
-
-
-
-
-        res.status(201).json({
-
-            message:"Found item reported successfully",
-
-            item:savedItem
-
-        });
-
-
-
-    }
-
-    catch(error){
-
-
-        console.log(error);
-
-
-        res.status(500).json({
-
-            message:"Server error"
-
-        });
-
+        }
 
     }
-
-
-});
-
-
-
-
-
-
+);
 
 
 
@@ -144,43 +129,45 @@ async(req,res)=>{
 // Get All Found Items
 // =========================
 
+router.get(
+    "/",
+    async (req, res) => {
 
-router.get("/",async(req,res)=>{
+        try {
 
-
-    try{
-
-
-        const items = await FoundItem.find()
-        .populate(
-            "userId",
-            "name email"
-        );
-
-
-
-        res.json(items);
+            const items =
+                await FoundItem
+                    .find()
+                    .populate(
+                        "userId",
+                        "name email"
+                    );
 
 
+            res.json(items);
+
+        }
+
+        catch (error) {
+
+            console.log(
+                "Get Found Items Error:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                success: false,
+
+                message: "Server error"
+
+            });
+
+        }
 
     }
-
-    catch(error){
-
-
-        res.status(500).json(error);
-
-
-    }
-
-
-});
-
-
-
-
-
-
+);
 
 
 
@@ -188,58 +175,59 @@ router.get("/",async(req,res)=>{
 // Get Single Found Item
 // =========================
 
+router.get(
+    "/:id",
+    async (req, res) => {
 
-router.get("/:id",async(req,res)=>{
+        try {
+
+            const item =
+                await FoundItem
+                    .findById(
+                        req.params.id
+                    )
+                    .populate(
+                        "userId",
+                        "name email"
+                    );
 
 
-    try{
+            if (!item) {
+
+                return res.status(404).json({
+
+                    message:
+                        "Item not found"
+
+                });
+
+            }
 
 
-        const item = await FoundItem.findById(
-            req.params.id
-        )
-        .populate(
-            "userId",
-            "name email"
-        );
+            res.json(item);
+
+        }
+
+        catch (error) {
+
+            console.log(
+                "Get Single Found Item Error:",
+                error
+            );
 
 
+            res.status(500).json({
 
-        if(!item){
+                success: false,
 
-            return res.status(404)
-            .json({
-
-                message:"Item not found"
+                message: "Server error"
 
             });
 
         }
 
-
-
-        res.json(item);
-
-
-
     }
-
-    catch(error){
-
-
-        res.status(500).json(error);
-
-
-    }
-
-
-});
-
-
-
-
-
-
+);
 
 
 
@@ -247,42 +235,86 @@ router.get("/:id",async(req,res)=>{
 // Delete Found Item
 // =========================
 
+router.delete(
+    "/:id",
+    auth,
 
-router.delete("/:id",async(req,res)=>{
+    async (req, res) => {
 
+        try {
 
-    try{
-
-
-        await FoundItem.findByIdAndDelete(
-            req.params.id
-        );
-
-
-
-        res.json({
-
-            message:"Found item deleted"
-
-        });
+            const item =
+                await FoundItem.findById(
+                    req.params.id
+                );
 
 
+            if (!item) {
+
+                return res.status(404).json({
+
+                    message:
+                        "Item not found"
+
+                });
+
+            }
+
+
+            // Only the user who reported
+            // the item can delete it
+
+            if (
+                item.userId.toString() !==
+                req.user.id.toString()
+            ) {
+
+                return res.status(403).json({
+
+                    message:
+                        "Unauthorized"
+
+                });
+
+            }
+
+
+            await FoundItem.findByIdAndDelete(
+                req.params.id
+            );
+
+
+            res.json({
+
+                message:
+                    "Found item deleted"
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.log(
+                "Delete Found Item Error:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                success: false,
+
+                message: "Server error"
+
+            });
+
+        }
 
     }
-
-    catch(error){
-
-
-        res.status(500).json(error);
-
-
-    }
-
-
-});
-
-
+);
 
 
 
 module.exports = router;
+
