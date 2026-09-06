@@ -3,75 +3,94 @@ import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
 import "./Chat.css";
 
-
 const socket = io(
     "https://findit-backend-lees.onrender.com"
 );
 
-
-
-function Chat(){
+function Chat() {
 
     const {
         itemId,
         receiverId
     } = useParams();
 
+    const [message, setMessage] = useState("");
 
+    const [messages, setMessages] = useState([]);
 
-    const [message,setMessage] = useState("");
-
-    const [messages,setMessages] = useState([]);
-
+    const [receiverName, setReceiverName] =
+        useState("Chat With User");
 
     const bottomRef = useRef();
-
-
 
     const user = JSON.parse(
         localStorage.getItem("user")
     );
 
+    const userId = user?.id;
 
+    const userName = user?.name;
 
-    if(!user){
+    const chatId = userId && receiverId
+        ? [
+            userId,
+            receiverId
+        ]
+        .sort()
+        .join("_")
+        : "";
 
-        return(
+    // ===============================
+    // GET REAL RECEIVER NAME
+    // ===============================
 
-            <h2 className="login-message">
-                Please login to use chat 💬
-            </h2>
+    useEffect(() => {
 
-        );
+        const getReceiverName = async () => {
 
-    }
+            try {
 
+                const response = await fetch(
+                    `https://findit-backend-lees.onrender.com/api/auth/user/${receiverId}`
+                );
 
+                if (!response.ok) {
+                    return;
+                }
 
-    const userId = user._id;
+                const data = await response.json();
 
-    const userName = user.name;
+                setReceiverName(data.name);
 
+            }
 
+            catch (error) {
 
-    const chatId = [
-        userId,
-        receiverId
-    ]
-    .sort()
-    .join("_");
+                console.log(
+                    "Error getting user:",
+                    error
+                );
 
+            }
+
+        };
+
+        if (receiverId) {
+            getReceiverName();
+        }
+
+    }, [receiverId]);
 
 
     // ===============================
     // LOAD PREVIOUS MESSAGES
     // ===============================
 
-    useEffect(()=>{
+    useEffect(() => {
 
-        const loadMessages = async()=>{
+        const loadMessages = async () => {
 
-            try{
+            try {
 
                 const response = await fetch(
                     `https://findit-backend-lees.onrender.com/api/chat/${chatId}`
@@ -82,7 +101,8 @@ function Chat(){
                 setMessages(data);
 
             }
-            catch(error){
+
+            catch (error) {
 
                 console.log(
                     "Error loading messages:",
@@ -93,34 +113,22 @@ function Chat(){
 
         };
 
-
-        loadMessages();
-
-    },[chatId]);
-
-
-
-    // ===============================
-    // REAL TIME CHAT + NOTIFICATIONS
-    // ===============================
-
-    useEffect(()=>{
-
-
-        // Ask for notification permission
-
-        if(
-            "Notification" in window &&
-            Notification.permission === "default"
-        ){
-
-            Notification.requestPermission();
-
+        if (chatId) {
+            loadMessages();
         }
 
+    }, [chatId]);
 
 
-        // Join chat room
+    // ===============================
+    // REAL TIME CHAT
+    // ===============================
+
+    useEffect(() => {
+
+        if (!chatId) {
+            return;
+        }
 
         socket.emit(
             "joinChat",
@@ -128,13 +136,12 @@ function Chat(){
         );
 
 
+        // Receive message
 
-        // Receive real-time message
-
-        const receiveMessage = (data)=>{
+        const receiveMessage = (data) => {
 
             setMessages(
-                prev=>[
+                prev => [
                     ...prev,
                     data
                 ]
@@ -143,34 +150,29 @@ function Chat(){
         };
 
 
-
         socket.on(
             "receiveMessage",
             receiveMessage
         );
 
 
+        // Notification
 
-        // Receive notification
+        const receiveNotification = (data) => {
 
-        const receiveNotification = (data)=>{
-
-
-            // Only notify the receiver
-
-            if(
+            if (
                 data.receiverId === userId
-            ){
+            ) {
 
-                if(
+                if (
                     "Notification" in window &&
                     Notification.permission === "granted"
-                ){
+                ) {
 
                     new Notification(
                         `New message from ${data.senderName}`,
                         {
-                            body:data.message
+                            body: data.message
                         }
                     );
 
@@ -181,23 +183,30 @@ function Chat(){
         };
 
 
-
         socket.on(
             "newMessageNotification",
             receiveNotification
         );
 
 
+        // Ask notification permission
 
-        // Cleanup
+        if (
+            "Notification" in window &&
+            Notification.permission === "default"
+        ) {
 
-        return()=>{
+            Notification.requestPermission();
+
+        }
+
+
+        return () => {
 
             socket.off(
                 "receiveMessage",
                 receiveMessage
             );
-
 
             socket.off(
                 "newMessageNotification",
@@ -206,60 +215,52 @@ function Chat(){
 
         };
 
-
-    },[chatId,userId]);
-
+    }, [chatId, userId]);
 
 
     // ===============================
-    // SCROLL TO LATEST MESSAGE
+    // SCROLL TO BOTTOM
     // ===============================
 
-    useEffect(()=>{
+    useEffect(() => {
 
         bottomRef.current?.scrollIntoView({
-
-            behavior:"smooth"
-
+            behavior: "smooth"
         });
 
-    },[messages]);
-
+    }, [messages]);
 
 
     // ===============================
     // SEND MESSAGE
     // ===============================
 
-    const sendMessage = async()=>{
+    const sendMessage = async () => {
 
-
-        if(!message.trim())
+        if (!message.trim()) {
             return;
+        }
 
-
-
-        const data={
+        const data = {
 
             chatId,
 
             itemId,
 
-            senderId:userId,
+            senderId: userId,
 
             receiverId,
 
-            senderName:userName,
+            senderName: userName,
 
-            message:message.trim(),
+            message: message.trim(),
 
-            time:new Date()
+            time: new Date()
 
         };
 
 
-
-        // Send instantly using Socket.IO
+        // Real-time message
 
         socket.emit(
             "sendMessage",
@@ -267,10 +268,9 @@ function Chat(){
         );
 
 
-
         // Save message in MongoDB
 
-        try{
+        try {
 
             await fetch(
 
@@ -278,16 +278,14 @@ function Chat(){
 
                 {
 
-                    method:"POST",
+                    method: "POST",
 
-                    headers:{
-
+                    headers: {
                         "Content-Type":
-                        "application/json"
-
+                            "application/json"
                     },
 
-                    body:JSON.stringify(data)
+                    body: JSON.stringify(data)
 
                 }
 
@@ -295,7 +293,7 @@ function Chat(){
 
         }
 
-        catch(error){
+        catch (error) {
 
             console.log(
                 "Error saving message:",
@@ -305,48 +303,56 @@ function Chat(){
         }
 
 
-
         setMessage("");
 
     };
 
+
+    // ===============================
+    // LOGIN CHECK
+    // ===============================
+
+    if (!user) {
+
+        return (
+
+            <h2 className="login-message">
+
+                Please login to use chat 💬
+
+            </h2>
+
+        );
+
+    }
 
 
     // ===============================
     // CHAT UI
     // ===============================
 
-    return(
-
+    return (
 
         <div className="whatsapp-container">
 
-
             <div className="chat-header">
 
-
                 <h2>
-                    Chat With User 💬
+                    {receiverName} 💬
                 </h2>
-
 
                 <span>
                     Online 🟢
                 </span>
 
-
             </div>
-
 
 
             <div className="messages">
 
-
                 {
-
                     messages.map(
-
-                        (msg,index)=>(
+                        (msg, index) => (
 
                             <div
 
@@ -356,15 +362,15 @@ function Chat(){
 
                                 className={
 
-                                    msg.senderId===userId
+                                    msg.senderId === userId
 
-                                    ?
+                                        ?
 
-                                    "my-message"
+                                        "my-message"
 
-                                    :
+                                        :
 
-                                    "other-message"
+                                        "other-message"
 
                                 }
 
@@ -373,7 +379,6 @@ function Chat(){
                                 <p>
                                     {msg.message}
                                 </p>
-
 
                                 <small>
 
@@ -386,58 +391,46 @@ function Chat(){
 
                                 </small>
 
-
                             </div>
 
                         )
-
                     )
-
                 }
-
 
 
                 <div ref={bottomRef}></div>
 
-
             </div>
 
 
-
             <div className="input-area">
-
 
                 <input
 
                     value={message}
 
                     onChange={
-
-                        (e)=>
-                        setMessage(e.target.value)
-
+                        (e) =>
+                            setMessage(e.target.value)
                     }
 
                     onKeyDown={
+                        (e) => {
 
-                        (e)=>{
-
-                            if(
-                                e.key==="Enter"
-                            ){
+                            if (
+                                e.key === "Enter"
+                            ) {
 
                                 sendMessage();
 
                             }
 
                         }
-
                     }
 
                     placeholder="Type your message..."
 
                 />
-
 
 
                 <button
@@ -448,15 +441,12 @@ function Chat(){
 
                 </button>
 
-
             </div>
-
 
         </div>
 
     );
 
 }
-
 
 export default Chat;
