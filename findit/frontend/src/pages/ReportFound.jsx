@@ -1,5 +1,7 @@
 
 import { useState } from "react";
+
+// Report Found page
 import "./ReportFound.css";
 
 function ReportFound() {
