@@ -1,67 +1,50 @@
+
 import { useState } from "react";
 import "./ReportFound.css";
 
+function ReportFound() {
 
-function ReportFound(){
+    const [formData, setFormData] = useState({
 
-
-    const [formData,setFormData] = useState({
-
-        title:"",
-        description:"",
-        category:"",
-        location:"",
-        date:""
+        title: "",
+        description: "",
+        category: "",
+        location: "",
+        date: "",
+        contact: ""
 
     });
 
+    const [image, setImage] = useState(null);
 
+    const [message, setMessage] = useState("");
 
-    const [image,setImage] = useState(null);
-
-
-    const [message,setMessage] = useState("");
-
-
-
-
-
-    const handleChange = (e)=>{
+    const handleChange = (e) => {
 
         setFormData({
 
             ...formData,
 
-            [e.target.name]:e.target.value
+            [e.target.name]: e.target.value
 
         });
 
     };
 
-
-
-
-
-
-    const handleSubmit = async(e)=>{
-
+    const handleSubmit = async (e) => {
 
         e.preventDefault();
 
-
-
-        try{
-
+        try {
 
             // Get logged in user
-
             const user = JSON.parse(
                 localStorage.getItem("user")
             );
 
+            const token = localStorage.getItem("token");
 
-
-            if(!user){
+            if (!user || !token) {
 
                 setMessage(
                     "Please login first"
@@ -71,83 +54,49 @@ function ReportFound(){
 
             }
 
-
-
-
-
-
-
             const data = new FormData();
 
-
-
-
+            // Backend expects itemName
             data.append(
-                "title",
+                "itemName",
                 formData.title
             );
-
-
 
             data.append(
                 "description",
                 formData.description
             );
 
-
-
             data.append(
                 "category",
                 formData.category
             );
-
-
 
             data.append(
                 "location",
                 formData.location
             );
 
-
-
             data.append(
                 "date",
                 formData.date
             );
 
-
-
-
-            // Important for profile/chat
-
+            // Backend requires contact
             data.append(
-                "userId",
-                user._id
+                "contact",
+                formData.contact
             );
 
-
-
-
-
-
-
-            if(image){
-
+            // Keep image upload
+            if (image) {
 
                 data.append(
                     "image",
                     image
                 );
 
-
             }
-
-
-
-
-
-
-
 
             const response = await fetch(
 
@@ -155,58 +104,45 @@ function ReportFound(){
 
                 {
 
-                    method:"POST",
+                    method: "POST",
 
-                    body:data
+                    headers: {
+
+                        Authorization:
+                            `Bearer ${token}`
+
+                    },
+
+                    body: data
 
                 }
 
             );
 
-
-
-
-
-
-
-
             const result = await response.json();
 
-
-
-
-
-
-            if(response.ok){
-
+            if (response.ok) {
 
                 setMessage(
                     "Found item reported successfully!"
                 );
 
-
-
-
                 setFormData({
 
-                    title:"",
-                    description:"",
-                    category:"",
-                    location:"",
-                    date:""
+                    title: "",
+                    description: "",
+                    category: "",
+                    location: "",
+                    date: "",
+                    contact: ""
 
                 });
 
-
-
                 setImage(null);
-
-
 
             }
 
-            else{
-
+            else {
 
                 setMessage(
 
@@ -215,64 +151,33 @@ function ReportFound(){
 
                 );
 
-
             }
-
-
-
-
 
         }
 
-
-
-        catch(error){
-
+        catch (error) {
 
             console.log(error);
-
-
 
             setMessage(
                 "Server error"
             );
 
-
         }
-
-
-
 
     };
 
-
-
-
-
-
-
-
-
-    return(
-
+    return (
 
         <div className="report-container">
 
-
             <div className="report-card">
-
-
 
                 <h2>
 
                     🔎 Report Found Item
 
                 </h2>
-
-
-
-
-
 
                 {
                     message &&
@@ -282,234 +187,137 @@ function ReportFound(){
                         {message}
 
                     </p>
-
                 }
-
-
-
-
-
-
-
 
                 <form onSubmit={handleSubmit}>
 
-
                     <input
 
+                        type="text"
 
-                    type="text"
+                        name="title"
 
+                        placeholder="Enter item name (Phone, Wallet, Bag...)"
 
-                    name="title"
+                        value={formData.title}
 
+                        onChange={handleChange}
 
-                    placeholder="Enter item name (Phone, Wallet, Bag...)"
-
-
-                    value={formData.title}
-
-
-                    onChange={handleChange}
-
-
-                    required
-
+                        required
 
                     />
-
-
-
-
-
-
-
-
 
                     <textarea
 
+                        name="description"
 
-                    name="description"
+                        placeholder="Describe the item, color, brand, unique marks..."
 
+                        value={formData.description}
 
-                    placeholder="Describe the item, color, brand, unique marks..."
+                        onChange={handleChange}
 
-
-                    value={formData.description}
-
-
-                    onChange={handleChange}
-
-
-                    required
-
+                        required
 
                     />
-
-
-
-
-
-
-
-
 
                     <input
 
+                        type="text"
 
-                    type="text"
+                        name="category"
 
+                        placeholder="Category (Wallet, Phone, Bag)"
 
-                    name="category"
+                        value={formData.category}
 
+                        onChange={handleChange}
 
-                    placeholder="Category (Wallet, Phone, Bag)"
-
-
-                    value={formData.category}
-
-
-                    onChange={handleChange}
-
-
-                    required
-
+                        required
 
                     />
-
-
-
-
-
-
-
-
 
                     <input
 
+                        type="text"
 
-                    type="text"
+                        name="location"
 
+                        placeholder="Found Location"
 
-                    name="location"
+                        value={formData.location}
 
+                        onChange={handleChange}
 
-                    placeholder="Found Location"
-
-
-                    value={formData.location}
-
-
-                    onChange={handleChange}
-
-
-                    required
-
+                        required
 
                     />
-
-
-
-
-
-
-
-
 
                     <input
 
+                        type="date"
 
-                    type="date"
+                        name="date"
 
+                        value={formData.date}
 
-                    name="date"
+                        onChange={handleChange}
 
-
-                    value={formData.date}
-
-
-                    onChange={handleChange}
-
-
-                    required
-
+                        required
 
                     />
 
+                    <input
 
+                        type="text"
 
+                        name="contact"
 
+                        placeholder="Contact Number or Email"
 
+                        value={formData.contact}
 
+                        onChange={handleChange}
 
+                        required
 
+                    />
 
                     <label className="upload-label">
 
-
                         📷 Upload Item Image
-
-
 
                         <input
 
+                            type="file"
 
-                        type="file"
+                            accept="image/*"
 
-
-                        accept="image/*"
-
-
-                        onChange={
-                            (e)=>setImage(e.target.files[0])
-                        }
-
+                            onChange={
+                                (e) =>
+                                    setImage(
+                                        e.target.files[0]
+                                    )
+                            }
 
                         />
 
-
                     </label>
-
-
-
-
-
-
-
 
                     <button type="submit">
 
-
                         Submit Found Report
-
 
                     </button>
 
-
-
-
-
-
                 </form>
-
-
-
-
 
             </div>
 
-
-
-
         </div>
-
-
 
     );
 
-
 }
-
-
 
 export default ReportFound;
