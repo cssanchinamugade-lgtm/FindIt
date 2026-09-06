@@ -151,7 +151,7 @@ function ReportFound(){
 
             const response = await fetch(
 
-                "http://https://findit-backend-lees.onrender.com/api/found-items",
+                "https://findit-backend-lees.onrender.com/api/found-items",
 
                 {
 
