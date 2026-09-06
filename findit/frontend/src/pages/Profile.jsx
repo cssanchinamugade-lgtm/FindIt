@@ -32,7 +32,7 @@ useEffect(()=>{
 
         const response = await fetch(
 
-        `http://https://findit-backend-lees.onrender.com/api/dashboard/${user._id}`
+        `https://findit-backend-lees.onrender.com/api/dashboard/${user._id}`
 
         );
 
