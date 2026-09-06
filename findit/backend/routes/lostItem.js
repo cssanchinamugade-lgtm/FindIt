@@ -1,3 +1,4 @@
+
 const express = require("express");
 const router = express.Router();
 
@@ -40,7 +41,8 @@ router.post(
           : "",
 
         // Get user from authenticated token
-        user: req.user.id,
+        // LostItem model requires userId
+        userId: req.user.id,
 
       });
 
@@ -142,7 +144,7 @@ router.get(
       const reports =
         await LostItem
           .find({
-            user: req.user.id
+            userId: req.user.id
           })
           .sort({
             createdAt: -1
@@ -201,7 +203,7 @@ router.delete(
 
 
       if (
-        report.user.toString() !==
+        report.userId.toString() !==
         req.user.id.toString()
       ) {
 
@@ -276,7 +278,7 @@ router.put(
 
 
       if (
-        report.user.toString() !==
+        report.userId.toString() !==
         req.user.id.toString()
       ) {
 
@@ -340,3 +342,4 @@ router.put(
 
 
 module.exports = router;
+
