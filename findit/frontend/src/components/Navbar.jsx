@@ -1,45 +1,44 @@
+
 import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 
+const socket = io(
+    "https://findit-backend-lees.onrender.com"
+);
 
 function Navbar(){
 
     const navigate = useNavigate();
 
-
     const [user,setUser] = useState(null);
 
+    const [messageNotification,setMessageNotification] =
+        useState(0);
 
 
     useEffect(()=>{
 
-
         const checkUser = ()=>{
-
 
             const loggedUser =
             JSON.parse(
                 localStorage.getItem("user")
             );
 
-
             setUser(loggedUser);
-
 
         };
 
 
-
         checkUser();
-
 
 
         window.addEventListener(
             "storage",
             checkUser
         );
-
 
 
         return()=>{
@@ -51,43 +50,87 @@ function Navbar(){
 
         };
 
-
     },[]);
 
 
+    useEffect(()=>{
+
+        if(!user?.id){
+            return;
+        }
 
 
+        // Join personal user room
+        socket.emit(
+            "joinUser",
+            user.id
+        );
 
+
+        const receiveNotification = (data)=>{
+
+            console.log(
+                "NEW MESSAGE NOTIFICATION:",
+                data
+            );
+
+
+            if(
+                data.receiverId === user.id
+            ){
+                setMessageNotification(
+                    previous => previous + 1
+                );
+            }
+
+        };
+
+
+        socket.on(
+            "newMessageNotification",
+            receiveNotification
+        );
+
+
+        return()=>{
+
+            socket.off(
+                "newMessageNotification",
+                receiveNotification
+            );
+
+        };
+
+    },[user]);
 
 
     const logout=()=>{
-
 
         localStorage.removeItem("user");
 
         localStorage.removeItem("token");
 
-
         setUser(null);
 
-
         navigate("/login");
-
 
     };
 
 
+    const openMessages=()=>{
+
+        setMessageNotification(0);
+
+        navigate("/messages");
+
+    };
 
 
-
-
-
-return(
+    return(
 
 <nav className="navbar navbar-expand-lg bg-primary">
 
 <div className="container">
-
 
 
 <Link
@@ -98,11 +141,7 @@ to="/"
 </Link>
 
 
-
-
-
 <ul className="navbar-nav ms-auto d-flex flex-row gap-4 align-items-center">
-
 
 
 <li>
@@ -112,13 +151,11 @@ Home
 </li>
 
 
-
 <li>
 <Link className="nav-link text-white" to="/search">
 Search
 </Link>
 </li>
-
 
 
 <li>
@@ -128,15 +165,11 @@ Report Lost
 </li>
 
 
-
 <li>
 <Link className="nav-link text-white" to="/report-found">
 Report Found
 </Link>
 </li>
-
-
-
 
 
 {
@@ -148,40 +181,88 @@ user ?
 
 <div className="profile-dropdown">
 
-    <button className="profile-btn">
+<button className="profile-btn">
 
-        👤 {user.name} ▼
+👤 {user.name} ▼
 
-    </button>
+{
+messageNotification > 0 &&
 
+<span
+style={{
+    background:"red",
+    color:"white",
+    borderRadius:"50%",
+    padding:"2px 7px",
+    fontSize:"12px",
+    marginLeft:"5px"
+}}
+>
+{messageNotification}
+</span>
 
-    <div className="dropdown-menu">
+}
 
-
-        <Link to="/profile">
-            My Profile
-        </Link>
-
-
-        <Link to="/my-reports">
-            My Reports
-        </Link>
-
-
-        <Link to="/chat">
-            Messages 💬
-        </Link>
-
-
-        <button onClick={logout}>
-            Logout
-        </button>
+</button>
 
 
-    </div>
+<div className="dropdown-menu">
+
+
+<Link to="/profile">
+My Profile
+</Link>
+
+
+<Link to="/my-reports">
+My Reports
+</Link>
+
+
+<button
+onClick={openMessages}
+style={{
+    border:"none",
+    background:"none",
+    width:"100%",
+    textAlign:"left",
+    padding:"10px 15px",
+    cursor:"pointer"
+}}
+>
+Messages 💬
+
+{
+messageNotification > 0 &&
+
+<span
+style={{
+    background:"red",
+    color:"white",
+    borderRadius:"50%",
+    padding:"2px 7px",
+    fontSize:"12px",
+    marginLeft:"5px"
+}}
+>
+{messageNotification}
+</span>
+
+}
+
+</button>
+
+
+<button onClick={logout}>
+Logout
+</button>
 
 
 </div>
+
+
+</div>
+
 </li>
 
 
@@ -234,9 +315,7 @@ Register
 }
 
 
-
 </ul>
-
 
 
 </div>
@@ -245,8 +324,8 @@ Register
 
 );
 
-
 }
 
 
 export default Navbar;
+

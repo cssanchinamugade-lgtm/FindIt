@@ -13,6 +13,7 @@ import EditReport from "./pages/EditReport";
 import Profile from "./pages/Profile";
 import Chat from "./pages/Chat";
 import ItemDetails from "./pages/ItemDetails";
+import Messages from "./pages/Messages";
 
 function App() {
 
@@ -30,7 +31,9 @@ function App() {
         <Route path="/edit-report/:id" element={<EditReport />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/chat/:itemId/:receiverId" element={<Chat />} />
+        <Route path="/chat/:receiverId" element={<Chat />} />
         <Route path="/item/:id" element={<ItemDetails />} />
+        <Route path="/messages" element={<Messages />} />
       </Routes>
       <Footer />
     </>

@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
@@ -13,7 +14,7 @@ function Chat() {
 
     const {
         itemId,
-        receiverId
+        receiverId: routeReceiverId
     } = useParams();
 
 
@@ -34,6 +35,10 @@ function Chat() {
     const userName = user?.name;
 
 
+    const receiverId =
+        routeReceiverId;
+
+
     const chatId =
         userId && receiverId
             ?
@@ -45,25 +50,6 @@ function Chat() {
                 .join("_")
             :
             "";
-
-
-    // ===============================
-    // LOGIN CHECK
-    // ===============================
-
-    if (!user) {
-
-        return (
-
-            <h2 className="login-message">
-
-                Please login to use chat 💬
-
-            </h2>
-
-        );
-
-    }
 
 
     // ===============================
@@ -289,6 +275,25 @@ function Chat() {
     };
 
 
+    // ===============================
+    // LOGIN CHECK
+    // ===============================
+
+    if (!user) {
+
+        return (
+
+            <h2 className="login-message">
+
+                Please login to use chat 💬
+
+            </h2>
+
+        );
+
+    }
+
+
     return (
 
         <div className="whatsapp-container">
@@ -433,3 +438,4 @@ function Chat() {
 
 
 export default Chat;
+
