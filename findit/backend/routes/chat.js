@@ -42,6 +42,14 @@ const getUserConversations = async (req, res) => {
                     ? message.receiverId
                     : message.senderId;
 
+            // Skip invalid user IDs and self-conversations
+if (
+    String(otherUserId) === String(userId) ||
+    !/^[0-9a-fA-F]{24}$/.test(String(otherUserId))
+) {
+    continue;
+}
+
             // Get the other person's name safely
             let otherUserName =
                 message.senderName || "User";
