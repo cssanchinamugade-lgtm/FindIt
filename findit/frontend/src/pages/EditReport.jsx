@@ -1,3 +1,4 @@
+
 import "./ReportLost.css";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -14,6 +15,11 @@ function EditReport() {
   const [date, setDate] = useState("");
   const [contact, setContact] = useState("");
 
+  const [image, setImage] = useState(null);
+  const [existingImage, setExistingImage] = useState("");
+
+  const BACKEND_URL = "https://findit-backend-lees.onrender.com";
+
   useEffect(() => {
     fetchReport();
   }, []);
@@ -21,7 +27,7 @@ function EditReport() {
   const fetchReport = async () => {
     try {
       const response = await axios.get(
-        "https://findit-backend-lees.onrender.com/api/lost-items"
+        `${BACKEND_URL}/api/lost-items`
       );
 
       const report = response.data.find((item) => item._id === id);
@@ -33,9 +39,19 @@ function EditReport() {
         setLocation(report.location);
         setDate(report.date.split("T")[0]);
         setContact(report.contact);
+        setExistingImage(report.image || "");
       }
     } catch (error) {
       console.log(error);
+      alert("Failed to load report.");
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const selectedImage = e.target.files[0];
+
+    if (selectedImage) {
+      setImage(selectedImage);
     }
   };
 
@@ -43,16 +59,22 @@ function EditReport() {
     e.preventDefault();
 
     try {
+      const formData = new FormData();
+
+      formData.append("itemName", itemName);
+      formData.append("category", category);
+      formData.append("description", description);
+      formData.append("location", location);
+      formData.append("date", date);
+      formData.append("contact", contact);
+
+      if (image) {
+        formData.append("image", image);
+      }
+
       await axios.put(
-        "https://findit-backend-lees.onrender.com/api/lost-items/${id}",
-        {
-          itemName,
-          category,
-          description,
-          location,
-          date,
-          contact,
-        },
+        `${BACKEND_URL}/api/lost-items/${id}`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -64,7 +86,7 @@ function EditReport() {
 
       navigate("/my-reports");
     } catch (error) {
-      console.log(error);
+      console.log("UPDATE REPORT ERROR:", error.response?.data || error);
       alert("Failed to update report.");
     }
   };
@@ -136,9 +158,58 @@ function EditReport() {
           />
         </div>
 
+        <div className="form-group">
+          <label>Current Photo</label>
+
+          {existingImage ? (
+            <img
+              src={`${BACKEND_URL}/uploads/${existingImage}`}
+              alt="Current item"
+              style={{
+                width: "200px",
+                height: "150px",
+                objectFit: "cover",
+                borderRadius: "10px",
+                marginBottom: "10px",
+              }}
+            />
+          ) : (
+            <p>No photo uploaded.</p>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label>Choose New Photo</label>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+        </div>
+
+        {image && (
+          <div className="form-group">
+            <label>New Photo Preview</label>
+
+            <img
+              src={URL.createObjectURL(image)}
+              alt="New item preview"
+              style={{
+                width: "200px",
+                height: "150px",
+                objectFit: "cover",
+                borderRadius: "10px",
+                marginTop: "10px",
+              }}
+            />
+          </div>
+        )}
+
         <button className="submit-btn" type="submit">
           Update Report
         </button>
+
       </form>
     </div>
   );
