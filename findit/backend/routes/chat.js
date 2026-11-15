@@ -6,19 +6,135 @@ const router = express.Router();
 const Chat = require("../models/Chat");
 
 
-// ===============================
-// GET PREVIOUS MESSAGES
-// ===============================
+// =====================================
+// GET USER CONVERSATIONS
+// =====================================
+
+const getUserConversations = async (req, res) => {
+
+    try {
+
+        const userId = req.params.userId;
+
+        const messages = await Chat.find({
+
+            $or: [
+                { senderId: userId },
+                { receiverId: userId }
+            ]
+
+        }).sort({
+
+            createdAt: -1
+
+        });
+
+
+        const conversations = [];
+
+        const chatIds = [];
+
+
+        for (const message of messages) {
+
+            if (chatIds.includes(message.chatId)) {
+                continue;
+            }
+
+            chatIds.push(message.chatId);
+
+
+            const otherUserId =
+                String(message.senderId) === String(userId)
+                    ? message.receiverId
+                    : message.senderId;
+
+
+            const otherUserName =
+                String(message.senderId) === String(userId)
+                    ? "User"
+                    : message.senderName;
+
+
+            conversations.push({
+
+                chatId: message.chatId,
+
+                otherUserId: otherUserId,
+
+                otherUserName: otherUserName,
+
+                lastMessage: message.message,
+
+                createdAt: message.createdAt
+
+            });
+
+        }
+
+
+        res.json(conversations);
+
+    }
+
+    catch (error) {
+
+        console.log(
+            "GET USER CONVERSATIONS ERROR:",
+            error
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message: "Server error"
+
+        });
+
+    }
+
+};
+
+
+// =====================================
+// GET USER CONVERSATIONS - EXISTING URL
+// =====================================
+
+router.get(
+    "/user/:userId",
+    getUserConversations
+);
+
+
+// =====================================
+// GET USER CONVERSATIONS - ALTERNATE URL
+// =====================================
+
+router.get(
+    "/conversations/:userId",
+    getUserConversations
+);
+
+
+// =====================================
+// GET PREVIOUS CHAT MESSAGES
+// =====================================
 
 router.get("/:chatId", async (req, res) => {
 
     try {
 
         const messages = await Chat.find({
+
             chatId: req.params.chatId
+
         }).sort({
+
             createdAt: 1
+
         });
+
 
         res.json(messages);
 
@@ -32,8 +148,11 @@ router.get("/:chatId", async (req, res) => {
         );
 
         res.status(500).json({
+
             success: false,
+
             message: "Server error"
+
         });
 
     }
@@ -41,145 +160,60 @@ router.get("/:chatId", async (req, res) => {
 });
 
 
-// ===============================
-// GET USER CONVERSATIONS
-// ===============================
+// =====================================
+// SAVE MESSAGE IN MONGODB
+// =====================================
 
-router.get("/user/:userId", async (req, res) => {
+router.post("/", async (req, res) => {
 
     try {
 
-        const userId =
-            req.params.userId;
+        const {
+            chatId,
+            senderId,
+            receiverId,
+            senderName,
+            message
+        } = req.body;
 
 
-        const messages =
-            await Chat.find({
+        if (
+            !chatId ||
+            !senderId ||
+            !receiverId ||
+            !message ||
+            !message.trim()
+        ) {
 
-                $or: [
-                    {
-                        senderId: userId
-                    },
-                    {
-                        receiverId: userId
-                    }
-                ]
+            return res.status(400).json({
 
-            }).sort({
-                createdAt: -1
-            });
+                success: false,
 
-
-        const conversations = [];
-
-        const chatIds = [];
-
-
-        for (const message of messages) {
-
-            if (
-                chatIds.includes(
-                    message.chatId
-                )
-            ) {
-                continue;
-            }
-
-
-            chatIds.push(
-                message.chatId
-            );
-
-
-            const otherUserId =
-                message.senderId === userId
-                    ?
-                    message.receiverId
-                    :
-                    message.senderId;
-
-
-            const otherUserName =
-                message.senderId === userId
-                    ?
-                    "User"
-                    :
-                    message.senderName;
-
-
-            conversations.push({
-
-                chatId:
-                    message.chatId,
-
-                otherUserId:
-                    otherUserId,
-
-                otherUserName:
-                    otherUserName,
-
-                lastMessage:
-                    message.message
+                message: "Required chat details are missing"
 
             });
 
         }
 
 
-        res.json(
-            conversations
-        );
-
-    }
-
-    catch (error) {
-
-        console.log(
-            "GET USER MESSAGES ERROR:",
-            error
-        );
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Server error"
-
-        });
-
-    }
-
-});
-
-
-// ===============================
-// SAVE MESSAGE
-// ===============================
-
-router.post("/", async (req, res) => {
-
-    try {
-
         const newMessage = new Chat({
 
-            chatId: req.body.chatId,
+            chatId,
 
-            senderId: req.body.senderId,
+            senderId,
 
-            receiverId: req.body.receiverId,
+            receiverId,
 
-            senderName: req.body.senderName,
+            senderName: senderName || "User",
 
-            message: req.body.message,
+            message: message.trim(),
 
-            createdAt: new Date()
+            createdAt: req.body.createdAt || new Date()
 
         });
 
 
-        const savedMessage =
-            await newMessage.save();
+        const savedMessage = await newMessage.save();
 
 
         res.status(201).json({
@@ -213,4 +247,3 @@ router.post("/", async (req, res) => {
 
 
 module.exports = router;
-
