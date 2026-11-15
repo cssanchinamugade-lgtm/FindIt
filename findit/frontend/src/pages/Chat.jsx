@@ -1,7 +1,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import "./Chat.css";
 
 // ===============================
@@ -21,8 +21,13 @@ function Chat() {
         receiverId: routeReceiverId
     } = useParams();
 
+    const location = useLocation();
+
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
+    const [receiverName, setReceiverName] = useState(
+        location.state?.receiverName || "User"
+    );
 
     const bottomRef = useRef(null);
 
@@ -52,6 +57,49 @@ function Chat() {
                 .sort()
                 .join("_")
             : "";
+
+    // ===============================
+    // LOAD RECEIVER NAME
+    // ===============================
+
+    useEffect(() => {
+        if (!userId || !receiverId) return;
+
+        // Use the name passed from Messages.jsx if available
+        if (location.state?.receiverName) {
+            setReceiverName(location.state.receiverName);
+            return;
+        }
+
+        const loadReceiverName = async () => {
+            try {
+                const response = await fetch(
+                    `${BACKEND_URL}/api/chat/conversations/${userId}`
+                );
+
+                if (!response.ok) {
+                    throw new Error("Unable to load conversation details");
+                }
+
+                const data = await response.json();
+
+                if (Array.isArray(data)) {
+                    const conversation = data.find(
+                        (chat) =>
+                            String(chat.otherUserId) === String(receiverId)
+                    );
+
+                    if (conversation?.otherUserName) {
+                        setReceiverName(conversation.otherUserName);
+                    }
+                }
+            } catch (error) {
+                console.log("Error loading receiver name:", error);
+            }
+        };
+
+        loadReceiverName();
+    }, [userId, receiverId, location.state]);
 
     // ===============================
     // LOAD OLD MESSAGES
@@ -120,10 +168,7 @@ function Chat() {
         const handleConnect = () => {
             console.log("Socket connected:", socket.id);
 
-            // Join personal user room
             socket.emit("joinUser", String(userId));
-
-            // Join this chat room
             socket.emit("joinChat", chatId);
         };
 
@@ -155,11 +200,9 @@ function Chat() {
             });
         };
 
-        // Listen before joining the room
         socket.on("receiveMessage", receiveMessage);
         socket.on("connect", handleConnect);
 
-        // Handle an already-connected socket
         if (socket.connected) {
             handleConnect();
         }
@@ -206,7 +249,6 @@ function Chat() {
         console.log("SENDING MESSAGE:", data);
 
         try {
-            // First save the message in MongoDB
             const response = await fetch(
                 `${BACKEND_URL}/api/chat`,
                 {
@@ -226,7 +268,6 @@ function Chat() {
 
             console.log("MESSAGE SAVED:", result);
 
-            // Broadcast only after successful saving
             socket.emit("sendMessage", {
                 ...data,
                 ...(result.message || {})
@@ -261,7 +302,7 @@ function Chat() {
 
             <div className="chat-header">
                 <h2>
-                    Chat With User 💬
+                    Chat With {receiverName} 💬
                 </h2>
 
                 <span>
